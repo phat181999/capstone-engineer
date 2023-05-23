@@ -99,7 +99,7 @@ workflows:
           name: build-and-push-image-ecr
           account-url: AWS_ECR_URL
           region: AWS_DEFAULT_REGION
-          repo: eks_orb_capstone_cloud
+          repo: my-ecr-repo
           dockerfile: ~/project/Dockerfile
           path: ~/project/
           tag: ${CIRCLE_SHA1}
