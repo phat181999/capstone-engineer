@@ -1,8 +1,27 @@
 version: 2.1
 
+orbs:
+  aws-eks: circleci/aws-eks@0.2.3
+  aws-ecr: circleci/aws-ecr@3.1.0
+  kubernetes: circleci/kubernetes@0.4.0
+
 jobs:
-  build-template:
+  run-lint:
     docker:
-      - image: cimg/node:17.4.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
+      - run:
+          name: install dependencies
+          command: |
+            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
+            sudo chmod +x /bin/hadolint
+      - run:
+          name: Run Lint
+          command: |
+            hadolint Dockerfile
+
+workflows:
+  default:
+    jobs:
+      - run-lint
