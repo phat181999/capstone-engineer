@@ -86,14 +86,6 @@ jobs:
           resource-name: deployment/capstone
       - kubernetes/create-or-update-resource:
           resource-file-path: "deployments/deployment.yml"
-      - aws-ecr/build_push_image:
-          name: build-capstone-engineer-cloud
-          account-url: AWS_ECR_URL
-          region: AWS_DEFAULT_REGION
-          repo: capstone-engineer-cloud
-          dockerfile: ~/project/Dockerfile
-          path: ~/project/
-          tag: ${CIRCLE_SHA1}
 
 workflows:
   default:
