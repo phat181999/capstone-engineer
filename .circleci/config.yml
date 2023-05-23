@@ -111,7 +111,7 @@ workflows:
       - deploy-application:
           cluster-name: capstone-engineer-cloud-hotanphat-k8s-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
-          docker-image-name: "${AWS_ECR_URL}/my-ecr-repo:${CIRCLE_SHA1}"
+          docker-image-name: "${AWS_ECR_URL}/my-ecr-repo:latest"
           version-info: "${CIRCLE_SHA1}"
           requires:
             - aws-eks/create-cluster
