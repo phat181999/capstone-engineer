@@ -97,7 +97,7 @@ jobs:
       - kubernetes/create-or-update-resource:
           resource-file-path: "deployments/deployment.yml"
 
-  build:
+  verify-credential:
     docker:
       - image: circleci/python:3.8
 
@@ -115,11 +115,6 @@ jobs:
             fi
 
       # Step to build and push Docker image using aws-ecr/build-and-push-image
-      - aws-ecr/build-and-push-image:
-          account-url: ${AWS_ECR_URL}
-          region: $AWS_DEFAULT_REGION
-          repository: capstone-engineer-cloud-buildpush
-          tag: ${CIRCLE_SHA1}
 
 workflows:
   default:
@@ -140,11 +135,18 @@ workflows:
       #     tag: ${CIRCLE_SHA1}
       #     requires:
       #       - generate-docker-login-token
+      - aws-ecr/build-and-push-image:
+          account-url: ${AWS_ECR_URL}
+          region: $AWS_DEFAULT_REGION
+          repository: capstone-engineer-cloud-buildpush
+          tag: ${CIRCLE_SHA1}
+          requires:
+            - verify-credential
       - aws-eks/create-cluster:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
-          # requires:
-          #   - build-and-push-image-ecr
+          requires:
+            - build-and-push-image-ecr
       - deploy-application:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
