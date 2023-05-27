@@ -97,6 +97,25 @@ jobs:
       - kubernetes/create-or-update-resource:
           resource-file-path: "deployments/deployment.yml"
 
+  build:
+    docker:
+      - image: circleci/python:3.8
+
+    steps:
+      - checkout
+
+      # Step to authenticate Docker with Amazon ECR
+      - run:
+          name: Configure Docker authentication
+          command: |
+            echo $AWS_ECR_PASSWORD | docker login --username AWS --password-stdin $AWS_ECR_URL
+
+      # Step to build and push Docker image
+      - run:
+          name: Build and push Docker image
+          command: |
+            docker build -t $AWS_ECR_URL/my-image:${CIRCLE_SHA1} .
+            docker push $AWS_ECR_URL/my-image:${CIRCLE_SHA1}
 workflows:
   default:
     jobs:
@@ -105,6 +124,7 @@ workflows:
       - push-docker-image:
           requires:
             - "build-docker-image"
+      - build
       - aws-ecr/build_and_push_image:
           name: build-and-push-image-ecr
           account-url: AWS_ECR_URL
