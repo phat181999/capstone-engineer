@@ -111,7 +111,7 @@ jobs:
             if ! docker info &>/dev/null; then
               echo "Docker authentication is required. Configuring..."
               echo "$DOCKER_AUTH_CONFIG" | base64 --decode > /tmp/config.json
-              docker --config /tmp login --auth-only
+              cat /tmp/config.json | docker login --config /dev/stdin
             fi
 
 workflows:
