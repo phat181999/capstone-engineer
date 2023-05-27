@@ -125,17 +125,8 @@ workflows:
           requires:
             - "build-docker-image"
       - verify-credential
-      # - aws-ecr/build_and_push_image:
-      #     name: build-and-push-image-ecr
-      #     account-url: AWS_ECR_URL
-      #     region: AWS_DEFAULT_REGION
-      #     repo: capstone-engineer-cloud-buildpush
-      #     dockerfile: ~/project/Dockerfile
-      #     path: ~/project/
-      #     tag: ${CIRCLE_SHA1}
-      #     requires:
-      #       - generate-docker-login-token
       - aws-ecr/build-and-push-image:
+          name: build-and-push-image-ecr
           account-url: ${AWS_ECR_URL}
           region: $AWS_DEFAULT_REGION
           repository: capstone-engineer-cloud-buildpush
