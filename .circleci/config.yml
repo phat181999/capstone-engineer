@@ -102,7 +102,7 @@ workflows:
           repo: eks_orb_capstone_project
           dockerfile: ~/project/Dockerfile
           path: ~/project/
-          tag: $TAG
+          tag: ${CIRCLE_BUILD_NUM}
       - aws-eks/create-cluster:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
@@ -111,7 +111,7 @@ workflows:
       - deploy-application:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
-          docker-image-name: "${AWS_ECR_URL}/capstone_project:$TAG"
-          version-info: "$TAG"
+          docker-image-name: "${AWS_ECR_URL}/eks_orb_capstone_project:${CIRCLE_BUILD_NUM}"
+          version-info: "${CIRCLE_BUILD_NUM}"
           requires:
             - aws-eks/create-cluster
