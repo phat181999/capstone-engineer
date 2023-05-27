@@ -96,17 +96,16 @@ workflows:
           requires:
             - "build-docker-image"
       - generate-docker-login-token:
-        docker:
-          - image: circleci/awscli
-        steps:
-          - checkout
-          - run:
-              name: Generate Docker login token
-              command: |
-                aws configure set aws_access_key_id AWS_ACCESS_KEY_ID
-                aws configure set aws_secret_access_key AWS_SECRET_ACCESS_KEY
-                aws ecr get-login-password --region AWS_DEFAULT_REGION | docker login --username AWS --password-stdin AWS_ECR_URL
-
+          docker:
+            - image: circleci/awscli
+          steps:
+            - checkout
+            - run:
+                name: Generate Docker login token
+                command: |
+                  aws configure set aws_access_key_id AWS_ACCESS_KEY_ID
+                  aws configure set aws_secret_access_key AWS_SECRET_ACCESS_KEY
+                  aws ecr get-login-password --region AWS_DEFAULT_REGION | docker login --username AWS --password-stdin AWS_ECR_URL
       - aws-ecr/build_and_push_image:
           name: build-and-push-image-ecr
           account-url: AWS_ECR_URL
