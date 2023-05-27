@@ -96,19 +96,33 @@ jobs:
           resource-name: deployment/capstone
       - kubernetes/create-or-update-resource:
           resource-file-path: "deployments/deployment.yml"
-  generate-docker-login-token:
+
+  build:
     docker:
-      - image: circleci/node:12
+      - image: circleci/python:3.8
+
     steps:
       - checkout
-      - install_awscli
+
+      # Step to check Docker authentication
       - run:
-          name: Generate Docker login token
+          name: Check Docker Authentication
           command: |
-            aws configure set aws_access_key_id AWS_ACCESS_KEY_ID
-            aws configure set aws_secret_access_key AWS_SECRET_ACCESS_KEY
-            aws configure set region $AWS_DEFAULT_REGION
-            aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_URL
+            if ! docker info &>/dev/null; then
+              echo "Docker authentication is required. Configuring..."
+              echo "$DOCKER_AUTH_CONFIG" | base64 --decode > /tmp/config.json
+              docker --config /tmp login --auth-only
+            fi
+
+      # Step to build and push Docker image using aws-ecr/build-and-push-image
+      - aws-ecr/build_and_push_image:
+          name: build-and-push-image-ecr
+          account-url: AWS_ECR_URL
+          region: AWS_DEFAULT_REGION
+          repo: capstone-engineer-cloud-buildpush
+          dockerfile: ~/project/Dockerfile
+          path: ~/project/
+          tag: ${CIRCLE_SHA1}
 
 workflows:
   default:
@@ -118,17 +132,7 @@ workflows:
       - push-docker-image:
           requires:
             - "build-docker-image"
-      - generate-docker-login-token
-      - aws-ecr/build_and_push_image:
-          name: build-and-push-image-ecr
-          account-url: AWS_ECR_URL
-          region: AWS_DEFAULT_REGION
-          repo: capstone-engineer-cloud-buildpush
-          dockerfile: ~/project/Dockerfile
-          path: ~/project/
-          tag: ${CIRCLE_SHA1}
-          requires:
-            - generate-docker-login-token
+      - build
       - aws-eks/create-cluster:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
