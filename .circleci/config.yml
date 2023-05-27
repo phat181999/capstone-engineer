@@ -108,11 +108,8 @@ jobs:
       - run:
           name: Check Docker Authentication
           command: |
-            if ! docker info &>/dev/null; then
-              echo "Docker authentication is required. Configuring..."
-              echo "$DOCKER_AUTH_CONFIG" | base64 --decode > /tmp/config.json
-              cat /tmp/config.json | docker login --config /dev/stdin
-            fi
+            AWS_ECR_PASSWORD=$(aws ecr get-login-password --region AWS_DEFAULT_REGION)
+            echo $AWS_ECR_PASSWORD | docker login --username AWS --password-stdin AWS_ECR_URL
 
 workflows:
   default:
