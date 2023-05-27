@@ -5,6 +5,16 @@ orbs:
   aws-ecr: circleci/aws-ecr@3.1.0
   kubernetes: circleci/kubernetes@0.4.0
 
+commands:
+  install_awscli:
+    description: Install AWS CLI v2
+    steps:
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
 jobs:
   run-lint:
     docker:
@@ -91,11 +101,7 @@ jobs:
       - image: circleci/node:12
     steps:
       - checkout
-      - run:
-          name: Install AWS CLI
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y awscli
+      - install_awscli
       - run:
           name: Generate Docker login token
           command: |
