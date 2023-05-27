@@ -114,8 +114,6 @@ jobs:
               docker --config /tmp login --auth-only
             fi
 
-      # Step to build and push Docker image using aws-ecr/build-and-push-image
-
 workflows:
   default:
     jobs:
@@ -125,11 +123,13 @@ workflows:
           requires:
             - "build-docker-image"
       - verify-credential
-      - aws-ecr/build-and-push-image:
+      - aws-ecr/build_and_push_image:
           name: build-and-push-image-ecr
-          account-url: ${AWS_ECR_URL}
-          region: $AWS_DEFAULT_REGION
-          repository: capstone-engineer-cloud-buildpush
+          account-url: AWS_ECR_URL
+          region: AWS_DEFAULT_REGION
+          repo: eks_orb_capstone_project
+          dockerfile: ~/project/Dockerfile
+          path: ~/project/
           tag: ${CIRCLE_SHA1}
           requires:
             - verify-credential
