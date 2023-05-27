@@ -114,7 +114,8 @@ jobs:
       - run:
           name: Check Docker Authentication
           command: |
-            AWS_ECR_PASSWORD=$(aws ecr get-login-password --region AWS_DEFAULT_REGION)
+
+            AWS_ECR_PASSWORD=$(aws ecr get-login-password --region $AWS_DEFAULT_REGION)
             echo $AWS_ECR_PASSWORD | docker login --username AWS --password-stdin AWS_ECR_URL
 
 workflows:
