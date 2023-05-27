@@ -86,7 +86,7 @@ jobs:
           resource-name: deployment/capstone
       - kubernetes/create-or-update-resource:
           resource-file-path: "deployments/deployment.yml"
-  build-and-push-image:
+  generate-docker-login-token:
     docker:
       - image: circleci/node:12
     steps:
@@ -106,7 +106,7 @@ workflows:
       - push-docker-image:
           requires:
             - "build-docker-image"
-      - build-and-push-image
+      - generate-docker-login-token
       - aws-ecr/build_and_push_image:
           name: build-and-push-image-ecr
           account-url: AWS_ECR_URL
