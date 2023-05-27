@@ -87,6 +87,17 @@ jobs:
       - kubernetes/create-or-update-resource:
           resource-file-path: "deployments/deployment.yml"
 
+  generate-docker-login-token:
+    docker:
+      - image: circleci/awscli
+    steps:
+      - checkout
+      - run:
+          name: Generate Docker login token
+          command: |
+            aws configure set aws_access_key_id <YOUR_ACCESS_KEY_ID>
+            aws configure set aws_secret_access_key <YOUR_SECRET_ACCESS_KEY>
+            aws ecr get-login-password --region <AWS_REGION> | docker login --username AWS --password-stdin <ECR_URL>
 workflows:
   default:
     jobs:
@@ -103,6 +114,8 @@ workflows:
           dockerfile: ~/project/Dockerfile
           path: ~/project/
           tag: ${CIRCLE_SHA1}
+          requires:
+            - generate-docker-login-token
       - aws-eks/create-cluster:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
