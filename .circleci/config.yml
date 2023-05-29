@@ -97,7 +97,7 @@ jobs:
       - kubernetes/create-or-update-resource:
           resource-file-path: "deployments/deployment.yml"
 
-  build:
+  build-push-ECR:
     docker:
       - image: circleci/python:3.8
 
@@ -132,12 +132,12 @@ workflows:
       - push-docker-image:
           requires:
             - "build-docker-image"
-      - build
-
+      - build-push-ECR
       - aws-eks/create-cluster:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
-
+          requires:
+            - build-push-ECR
       - deploy-application:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
