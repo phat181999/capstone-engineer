@@ -124,9 +124,10 @@ jobs:
       - run:
           name: Build and push Docker image
           command: |
-            docker build -t $AWS_ECR_URL/capstone-engineer-cloud:1 .
+            docker build -t $AWS_ECR_URL/capstone-engineer-cloud:${CIRCLE_SHA1} .
             docker images ls -a
-            docker push $AWS_ECR_URL/capstone-engineer-cloud:1
+            docker push $AWS_ECR_URL/capstone-engineer-cloud:${CIRCLE_SHA1}
+          debug: true
 workflows:
   default:
     jobs:
