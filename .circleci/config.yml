@@ -116,7 +116,7 @@ jobs:
       - run:
           name: Configure Docker authentication
           command: |
-            docker login --username AWS --password "$AWS_ECR_PASSWORD" $AWS_ECR_URL
+            echo $AWS_ECR_PASSWORD | docker login --username AWS --password-stdin $AWS_ECR_URL
             aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_URL
       # Step to build and push Docker image
       - run:
