@@ -123,14 +123,14 @@ jobs:
       # Step to build and push Docker image
       - run:
           name: Check Images
-          command: |
+          command: 
           docker images ls
           docker push $AWS_ECR_URL/capstone-engineer-cloud:${CIRCLE_SHA1}
           debug: true
       - run:
           name: Build and push Docker image
           command: |
-            docker images
+            docker images ls
             docker build -t $AWS_ECR_URL/capstone-engineer-cloud:${CIRCLE_SHA1} .
             docker push $AWS_ECR_URL/capstone-engineer-cloud:${CIRCLE_SHA1}
 workflows:
