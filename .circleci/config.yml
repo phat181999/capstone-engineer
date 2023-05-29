@@ -120,6 +120,9 @@ jobs:
           command: |
             echo $AWS_ECR_PASSWORD | docker login --username AWS --password-stdin $AWS_ECR_URL
             aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_URL
+      - run:
+          command: docker push $AWS_ECR_URL/capstone-engineer-cloud-buildpus:${CIRCLE_SHA1}
+          debug: true
       # Step to build and push Docker image
       - run:
           name: Build and push Docker image
