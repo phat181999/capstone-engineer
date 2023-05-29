@@ -121,12 +121,14 @@ jobs:
             echo $AWS_ECR_PASSWORD | docker login --username AWS --password-stdin $AWS_ECR_URL
             aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ECR_URL
       # Step to build and push Docker image
-      - run:
-          name: Build and push Docker image
-          command: |
-            docker build -t $AWS_ECR_URL/capstone-engineer-cloud:${CIRCLE_SHA1} .
-            docker images ls -a
-            docker push $AWS_ECR_URL/capstone-engineer-cloud:${CIRCLE_SHA1}
+      - aws-ecr/build_and_push_image:
+          name: build-and-push-image-ecr
+          account-url: AWS_ECR_URL
+          region: AWS_DEFAULT_REGION
+          repo: eks_orb_capstone_project
+          dockerfile: ~/project/Dockerfile
+          path: ~/project/
+          tag: ${CIRCLE_SHA1}
 workflows:
   default:
     jobs:
