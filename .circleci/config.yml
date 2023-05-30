@@ -3,8 +3,7 @@ version: 2.1
 orbs:
   aws-eks: circleci/aws-eks@0.2.3
   aws-ecr: circleci/aws-ecr@3.1.0
-  kubernetes: circleci/kubernetes@0.4.0
-  authenticator-release-tag: v0.5.6
+  kubernetes: circleci/kubernetes@0.5.6
 
 commands:
   install_awscli:
@@ -167,8 +166,6 @@ workflows:
           repo: eks_orb_capstone_project
           dockerfile: ~/project/Dockerfile
           path: ~/project/
-      - aws-eks/update-kubeconfig-with-authenticator:
-          authenticator-release-tag: v0.5.6
       - aws-eks/create-cluster:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
