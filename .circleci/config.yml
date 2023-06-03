@@ -78,7 +78,7 @@ jobs:
               exit 0
             fi
 
-            curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.20.7/2021-04-12/bin/linux/amd64/aws-iam-authenticator
+            curl -o aws-iam-authenticator https://amazon-eks.s3.us-east-1.amazonaws.com/1.20.7/2021-04-12/bin/linux/amd64/aws-iam-authenticator
             chmod +x aws-iam-authenticator
             sudo mv aws-iam-authenticator /usr/local/bin/
 
@@ -134,7 +134,7 @@ workflows:
           cluster-name: eks-orb-capstone-project-deployment
           aws-region: $AWS_DEFAULT_REGION
           requires:
-            - build-and-push-image-ecr
+            - authen-aws-iam
       - deploy-application:
           cluster-name: eks-orb-capstone-project-deployment
           aws-region: $AWS_DEFAULT_REGION
