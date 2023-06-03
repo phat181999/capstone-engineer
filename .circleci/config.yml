@@ -82,20 +82,20 @@ jobs:
 
       # Install AWS IAM Authenticator
       - run:
-        name: Install AWS IAM Authenticator for Kubernetes
-        command: |
-          PLATFORM="linux"
-          if [ -n "$(uname | grep "Darwin")" ]; then
-            PLATFORM="darwin"
-          fi
+          name: Install AWS IAM Authenticator for Kubernetes
+          command: |
+            PLATFORM="linux"
+            if [ -n "$(uname | grep "Darwin")" ]; then
+              PLATFORM="darwin"
+            fi
 
-          DOWNLOAD_URL=$(curl -sL https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest \
-            | grep "browser_download_url.*${PLATFORM}" | cut -d : -f 2,3 | tr -d \")
+            DOWNLOAD_URL=$(curl -sL https://api.github.com/repos/kubernetes-sigs/aws-iam-authenticator/releases/latest \
+              | grep "browser_download_url.*${PLATFORM}" | cut -d : -f 2,3 | tr -d \")
 
-          curl -o aws-iam-authenticator $DOWNLOAD_URL
+            curl -o aws-iam-authenticator $DOWNLOAD_URL
 
-          chmod +x aws-iam-authenticator
-          sudo mv aws-iam-authenticator /usr/local/bin/
+            chmod +x aws-iam-authenticator
+            sudo mv aws-iam-authenticator /usr/local/bin/
 
       # Configure and authenticate AWS CLI
       - run:
