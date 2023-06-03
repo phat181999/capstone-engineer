@@ -63,6 +63,37 @@ jobs:
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD 
             docker push phat99/$IMAGE_NAME:$TAG
 
+  build:
+    docker:
+      - image: circleci/python:3.9
+
+    steps:
+      - checkout
+
+      # Install AWS CLI
+      - run:
+          name: Install AWS CLI
+          command: |
+            sudo apt-get update && sudo apt-get install -y unzip
+            curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+
+      # Install AWS IAM Authenticator
+      - run:
+          name: Install AWS IAM Authenticator for Kubernetes
+          command: |
+            curl -o aws-iam-authenticator https://amazon-eks.s3.us-east-1.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/aws-iam-authenticator
+            chmod +x ./aws-iam-authenticator
+            sudo mv aws-iam-authenticator /usr/local/bin/
+
+      # Configure and authenticate AWS CLI
+      - run:
+          name: Configure and authenticate AWS CLI
+          command: |
+            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+
   deploy-application:
     executor: aws-eks/python3
     parameters:
@@ -111,8 +142,12 @@ workflows:
           dockerfile: ~/project/Dockerfile
           path: ~/project/
       - aws-eks/create-cluster:
-          cluster-name: eks-orb-capstone-project-deployment
-          aws-region: $AWS_DEFAULT_REGION
+          - run:
+            name: Install AWS IAM Authenticator for Kubernetes
+            command: |
+              curl -o aws-iam-authenticator https://amazon-eks.s3.us-east-1.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/aws-iam-authenticator
+              chmod +x ./aws-iam-authenticator
+              sudo mv aws-iam-authenticator /usr/local/bin/
           requires:
             - build-and-push-image-ecr
       - deploy-application:
