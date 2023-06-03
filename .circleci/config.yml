@@ -135,6 +135,7 @@ workflows:
           aws-region: $AWS_DEFAULT_REGION
           requires:
             - authen-aws-iam
+            - build-and-push-image-ecr
       - deploy-application:
           cluster-name: eks-orb-capstone-project-deployment
           aws-region: $AWS_DEFAULT_REGION
