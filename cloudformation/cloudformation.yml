@@ -29,7 +29,7 @@ Resources:
       SecurityGroups:
         - Ref: InstanceSecurityGroup
       KeyName: capstone-phatht8
-      ImageId: ami-053b0d53c279acc90
+      ImageId: ami-1853ac65
       Tags:
         - Key: Name
           Value: !Sub capstone-${ID}
