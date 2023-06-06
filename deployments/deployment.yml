@@ -1,25 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: capstone
-  labels:
-    app: capstone
+  name: cloudformation-deployment
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: capstone
-  replicas: 3
+      app: cloudformation-stack
   template:
     metadata:
       labels:
-        app: capstone
+        app: cloudformation-stack
     spec:
       containers:
-        - name: app
-          image: phat99/capstone-engineer-cloud-hotanphat:latest
-          resources:
-            requests:
-              cpu: 100m
-              memory: 100Mi
-          ports:
-            - containerPort: 8080
+        - name: aws-cli
+          image: amazon/aws-cli:latest
+          command: ["sleep", "infinity"]
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: aws_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: aws_secret_access_key
+          volumeMounts:
+            - name: aws-credentials
+              mountPath: /root/.aws
+      volumes:
+        - name: aws-credentials
+          secret:
+            secretName: aws-credentials
