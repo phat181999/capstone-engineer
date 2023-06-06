@@ -21,7 +21,7 @@ jobs:
       - run:
           name: Apply Kubernetes Deployment
           command: |
-            kubectl apply -f deployment.yml
+            kubectl apply -f deployments/deployment.yml
 
 workflows:
   version: 2
