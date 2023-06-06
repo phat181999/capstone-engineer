@@ -1,36 +1,14 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cloudformation-deployment
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: cloudformation-stack
-  template:
-    metadata:
-      labels:
-        app: cloudformation-stack
-    spec:
-      containers:
-        - name: aws-cli
-          image: amazon/aws-cli:latest
-          command: ["sleep", "infinity"]
-          env:
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: aws-credentials
-                  key: aws_access_key_id
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: aws-credentials
-                  key: aws_secret_access_key
-          volumeMounts:
-            - name: aws-credentials
-              mountPath: /root/.aws
-      volumes:
-        - name: aws-credentials
-          secret:
-            secretName: aws-credentials
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  ImageTag:
+    Type: String
+    Description: tag of the docker image to deploy in this stack
+    Default: latest
+
+Resources:
+  TaskDefMyApp:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: MyApp
+      ContainerDefinitions:
+        - Image: !Sub "$AWS_ECR_URL/my-app:${ImageTag}"
