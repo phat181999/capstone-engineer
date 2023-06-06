@@ -98,4 +98,4 @@ workflows:
           dockerfile: ~/project/Dockerfile
           path: ~/project/
           tag: ${CIRCLE_SHA1}
-      - deploy-application:
+      - deploy-application
