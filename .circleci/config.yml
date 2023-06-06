@@ -168,13 +168,14 @@ workflows:
           dockerfile: ~/project/Dockerfile
           path: ~/project/
           tag: ${CIRCLE_SHA1}
-
       - deploy-application:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
           docker-image-name: "${AWS_ECR_URL}/eks_orb_capstone_project:${CIRCLE_SHA1}"
           version-info: "${CIRCLE_SHA1}"
-
+          requires:
+            - authen-aws-iam
+            - aws-ecr/build_and_push_image
       - test-application:
           cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
           aws-region: $AWS_DEFAULT_REGION
