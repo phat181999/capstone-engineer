@@ -1,101 +1,30 @@
 version: 2.1
 
 orbs:
-  aws-eks: circleci/aws-eks@0.2.3
-  aws-ecr: circleci/aws-ecr@3.1.0
-  kubernetes: circleci/kubernetes@0.4.0
+  kubernetes: circleci/kubernetes@0.13.0
 
 jobs:
-  run-lint:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: install dependencies
-          command: |
-            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
-            sudo chmod +x /bin/hadolint
-      - run:
-          name: Run Lint
-          command: |
-            hadolint Dockerfile
-
-  build-docker-image:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-
-      - setup_remote_docker:
-          version: 19.03.13
-
-      - run:
-          name: Build Docker Image
-          command: |
-            export TAG=v${CIRCLE_BUILD_NUM}
-            export IMAGE_NAME=capstone
-            docker build -t phat99/$IMAGE_NAME:$TAG .
-
-  push-docker-image:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - run:
-          name: Push Docker Image to Docker Hub
-          command: |
-            export TAG=v${CIRCLE_BUILD_NUM}
-            export IMAGE_NAME=capstone
-
-            docker build -t phat99/$IMAGE_NAME:$TAG .
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD 
-            docker push phat99/$IMAGE_NAME:$TAG
-
-  authen-aws-iam:
+  deploy-cloudformation:
     docker:
       - image: circleci/python:3.9
-
     steps:
       - checkout
       - run:
-          name: Install and configure kubectl aws-iam-authenticator
-          command: curl -Lo aws-iam-authenticator https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.9/aws-iam-authenticator_0.5.9_linux_amd64 && chmod +x ./aws-iam-authenticator && mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
-
-  deploy-application:
-    parameters:
-      stack-name:
-        description: Name of the CloudFormation stack
-        type: string
-    executor: aws-cli/default
-    steps:
-      - checkout
-      - aws-cli/setup
-      - run:
-          name: Deploy Cloudformation Template with new Docker image
+          name: Install AWS CLI and authenticate
           command: |
-            aws cloudformation deploy \
-            --template deployments/deployment.yml \
-            --stack << parameters.stack-name >> \
-            --parameter-overrides ImageTag=${CIRCLE_SHA1}
+            sudo apt-get install -y awscli
+            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+            aws configure set default.region $AWS_DEFAULT_REGION
+      - kubernetes/install-kubectl:
+          version: v1.22.0
+      - run:
+          name: Apply Kubernetes Deployment
+          command: |
+            kubectl apply -f deployment.yml
 
 workflows:
-  default:
+  version: 2
+  deploy-cloudformation:
     jobs:
-      - run-lint
-      - build-docker-image
-      - push-docker-image:
-          requires:
-            - "build-docker-image"
-      - authen-aws-iam
-      - aws-ecr/build_and_push_image:
-          name: build-and-push-image-ecr
-          account-url: AWS_ECR_URL
-          region: AWS_DEFAULT_REGION
-          repo: eks_orb_capstone_project
-          dockerfile: ~/project/Dockerfile
-          path: ~/project/
-          tag: ${CIRCLE_SHA1}
-      - deploy-application
+      - deploy-cloudformation
