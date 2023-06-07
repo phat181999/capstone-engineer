@@ -138,6 +138,6 @@ workflows:
           path: ~/project/
           tag: ${CIRCLE_SHA1}
       - deploy-application:
-          cluster-name: your-cluster-name
+          cluster-name: my-eks-cluster
           docker-image-name: capstone-engineer-cloud-hotanphat
-          version-info: your-version-info
+          version-info: v1.0.0
