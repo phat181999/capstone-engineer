@@ -95,7 +95,7 @@ jobs:
           command: |
             aws cloudformation deploy \
             --template deployments/deployment.yml \
-            --stack << parameters.stack-name >> \
+            --stack project-final-project \
             --parameter-overrides ImageTag=${CIRCLE_SHA1}
 
 workflows:
