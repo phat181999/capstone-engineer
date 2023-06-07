@@ -1,17 +1,88 @@
 AWSTemplateFormatVersion: 2010-09-09
+
 Parameters:
   ImageTag:
     Type: String
-    Description: tag of the docker image to deploy in this stack
+    Description: Tag of the Docker image to deploy in this stack
     Default: latest
 
 Resources:
-  TaskDefMyApp:
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: eks_orb_capstone_project
+
+  TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: MyApp
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: '256'
+      Memory: '512'
+      NetworkMode: awsvpc
+      ExecutionRoleArn: !GetAtt ExecutionRole.Arn
       ContainerDefinitions:
         - Name: MyAppContainer
-          Memory: 512
-          MemoryReservation: 256
-          Image: "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b"
+          Image: Image: "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b"
+          PortMappings:
+            - ContainerPort: 80
+              Protocol: tcp
+
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ecsTaskExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  Cluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: my-eks-cluster
+      Version: '1.21'
+      RoleArn: !GetAtt ClusterRole.Arn
+
+  ClusterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: my-eks-cluster-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - eks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  Service:
+    Type: AWS::ECS::Service
+    DependsOn: Cluster
+    Properties:
+      Cluster: !Ref Cluster
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 100
+        MaximumPercent: 200
+      DesiredCount: 1
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - subnet-03054571ce47ec942
+          SecurityGroups:
+            - sg-0a5fabd50db5956a7
+      TaskDefinition: !Ref TaskDefinition
+
+Outputs:
+  ClusterName:
+    Value: !Ref Cluster
