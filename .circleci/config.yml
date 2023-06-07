@@ -129,5 +129,3 @@ workflows:
           path: ~/project/
           tag: ${CIRCLE_SHA1}
       - deploy-application:
-          requires:
-            - valid-container
