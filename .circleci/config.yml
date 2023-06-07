@@ -91,7 +91,10 @@ jobs:
       - aws-cli/setup
       - run:
           name: Deploy Cloudformation Template with new Docker image
-          command: aws cloudformation deploy \
+          command: |
+            echo "$AWS_ECR_URL"
+            echo "$ImageTag"
+            aws cloudformation deploy \
             --template deployments/deployment.yml \
             --stack capstone-project-final \
             --parameter-overrides ImageTag=${CIRCLE_SHA1}
