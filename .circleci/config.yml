@@ -92,11 +92,9 @@ jobs:
       - run:
           name: Deploy Cloudformation Template with new Docker image
           command: |
-            echo "$AWS_ECR_URL"
-            echo "$ImageTag"
             aws cloudformation deploy \
             --template deployments/deployment.yml \
-            --stack capstone-project-final \
+            --stack capstone-final \
             --parameter-overrides ImageTag=${CIRCLE_SHA1}
 
 workflows:
@@ -118,4 +116,4 @@ workflows:
           path: ~/project/
           tag: ${CIRCLE_SHA1}
       - deploy-application:
-          stack-name: "capstone-project-final"
+          stack-name: "capstone-final"
