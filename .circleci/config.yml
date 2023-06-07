@@ -102,7 +102,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudformation/cloudformation.yml \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --stack-name initCiCD
+              --stack-name capstone-project-final
 workflows:
   version: 2
   build-and-deploy:
