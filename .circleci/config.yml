@@ -80,6 +80,18 @@ jobs:
             chmod +x aws-iam-authenticator
             sudo mv aws-iam-authenticator /usr/local/bin/
 
+  valid-container:
+    docker:
+      - image: circleci/python:3.8
+
+    steps:
+      - checkout
+      - run:
+          name: Update Container Definition
+          command: |
+            sed -i 's/"ContainerDefinitions": \[{/"ContainerDefinitions": [{"Name": "my-container",/' config.json
+            cat config.json  # Optional: Verify the updated configuration
+
   deploy-application:
     parameters:
       stack-name:
@@ -96,18 +108,6 @@ jobs:
             --template deployments/deployment.yml \
             --stack capstone-project-final \
             --parameter-overrides ImageTag=${CIRCLE_SHA1}
-
-  valid-container:
-    docker:
-      - image: circleci/python:3.8
-
-    steps:
-      - checkout
-      - run:
-          name: Update Container Definition
-          command: |
-            sed -i 's/"ContainerDefinitions": \[{/"ContainerDefinitions": [{"Name": "my-container",/' config.json
-            cat config.json  # Optional: Verify the updated configuration
 
 workflows:
   version: 2
