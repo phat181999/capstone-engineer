@@ -5,22 +5,32 @@ orbs:
   aws-ecr: circleci/aws-ecr@3.1.0
   aws-cli: circleci/aws-cli@1.4.0
 
+commands:
+  install_awscli:
+    description: Install AWS CLI v2
+    steps:
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
 
-  jobs:
-    run-lint:
-      docker:
-        - image: circleci/node:13.8.0
-      steps:
-        - checkout
-        - run:
-            name: Install hadolint
-            command: |
-              sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
-              sudo chmod +x /bin/hadolint
-        - run:
-            name: Run Lint
-            command: |
-              hadolint Dockerfile
+jobs:
+  run-lint:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Install hadolint
+          command: |
+            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
+            sudo chmod +x /bin/hadolint
+      - run:
+          name: Run Lint
+          command: |
+            hadolint Dockerfile
 
   build-docker-image:
     docker:
@@ -71,38 +81,43 @@ orbs:
             chmod +x aws-iam-authenticator
             sudo mv aws-iam-authenticator /usr/local/bin/
 
-   deploy-application:
-      executor: aws-eks/python3
-      parameters:
-        cluster-name:
-          description: |
-            Name of the EKS cluster
-          type: string
-        docker-image-name:
-          description: |
-            Name of the docker image to be deployed
-          type: string
-        version-info:
-          description: |
-            App version information
-          type: string
-        aws-region:
-          description: |
-            AWS region
-          type: string
-          default: "us-west-2"
-      steps:
-        - checkout
-        - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: << parameters.cluster-name >>
-            install-kubectl: true
-            aws-region: << parameters.aws-region >>
-        - kubernetes/create-or-update-resource:
-            resource-file-path: "deployments/deployment.yml"
-            get-rollout-status: true
-            resource-name: deployment/capstone
-        - kubernetes/create-or-update-resource:
-            resource-file-path: "deployments/deployment.yml"
+  deploy-application:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+      docker-image-name:
+        description: |
+          Name of the docker image to be deployed
+        type: string
+      version-info:
+        description: |
+          App version information
+        type: string
+      aws-region:
+        description: |
+          AWS region
+        type: string
+        default: "us-west-2"
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+          aws-region: << parameters.aws-region >>
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "deployments/deployment.yml"
+          get-rollout-status: true
+          resource-name: deployment/capstone
+      - kubernetes/create-or-update-resource:
+          resource-file-path: "deployments/deployment.yml"
+      - run:
+          name: Deploy index.html
+          command: |
+            echo $INDEX_HTML_CONTENT > index.html
+            aws s3 cp index.html s3://your-bucket-name/index.html
 
 workflows:
   version: 2
@@ -123,7 +138,4 @@ workflows:
           path: ~/project/
           tag: ${CIRCLE_SHA1}
       - deploy-application:
-          cluster-name: eks_orb_capstone_project-${CIRCLE_WORKFLOW_ID:0:7}
-          aws-region: $AWS_DEFAULT_REGION
-          docker-image-name: "${AWS_ECR_URL}/eks_orb_capstone_project:${CIRCLE_SHA1}"
-          version-info: "${CIRCLE_SHA1}"
+          stack-name: "capstone-project-final"
