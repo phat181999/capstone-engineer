@@ -18,13 +18,13 @@ Resources:
       Family: MyApp
       RequiresCompatibilities:
         - FARGATE
-      Cpu: '256'
-      Memory: '512'
+      Cpu: "256"
+      Memory: "512"
       NetworkMode: awsvpc
       ExecutionRoleArn: !GetAtt ExecutionRole.Arn
       ContainerDefinitions:
         - Name: MyAppContainer
-          Image: Image: "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b"
+          Image: "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b"
           PortMappings:
             - ContainerPort: 80
               Protocol: tcp
@@ -34,7 +34,7 @@ Resources:
     Properties:
       RoleName: ecsTaskExecutionRole
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
@@ -47,7 +47,7 @@ Resources:
     Type: AWS::EKS::Cluster
     Properties:
       Name: my-eks-cluster
-      Version: '1.21'
+      Version: "1.21"
       RoleArn: !GetAtt ClusterRole.Arn
 
   ClusterRole:
@@ -55,7 +55,7 @@ Resources:
     Properties:
       RoleName: my-eks-cluster-role
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
