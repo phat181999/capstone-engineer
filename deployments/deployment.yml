@@ -13,5 +13,21 @@ Resources:
       ContainerDefinitions:
         - Name: MyAppContainer
           Memory: 512
-          MemoryReservation: 256
           Image: "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b"
+          PortMappings:
+            - ContainerPort: 80
+              Protocol: tcp
+
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ecsTaskExecutionRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
