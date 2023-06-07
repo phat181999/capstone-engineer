@@ -11,4 +11,4 @@ Resources:
     Properties:
       Family: MyApp
       ContainerDefinitions:
-        - Image: !Sub "$AWS_ECR_URL/eks_orb_capstone_project:${ImageTag}"
+        - Image: !Sub "$AWS_ECR_URL/eks_orb_capstone_project:a846f2152be32e72b75e94ac8110fb7adc8256a2"

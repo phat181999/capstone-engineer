@@ -94,10 +94,10 @@ jobs:
           command: |
             echo "$AWS_ECR_URL"
             echo "$ImageTag"
-            # aws cloudformation deploy \
-            # --template deployments/deployment.yml \
-            # --stack capstone-project-final \
-            # --parameter-overrides ImageTag=${CIRCLE_SHA1}
+            aws cloudformation deploy \
+            --template deployments/deployment.yml \
+            --stack capstone-project-final \
+            --parameter-overrides ImageTag=${CIRCLE_SHA1}
 
 workflows:
   version: 2
