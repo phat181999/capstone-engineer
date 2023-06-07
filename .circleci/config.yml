@@ -96,7 +96,6 @@ jobs:
             --template deployments/deployment.yml \
             --stack capstone-project-final \
             --parameter-overrides ImageTag=${CIRCLE_SHA1} \
-            --capabilities CAPABILITY_IAM
       - run:
           name: Update cloudfront distribution
           command: |
