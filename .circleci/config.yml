@@ -95,7 +95,8 @@ jobs:
             aws cloudformation deploy \
             --template deployments/deployment.yml \
             --stack capstone-project-final \
-            --parameter-overrides ImageTag=${CIRCLE_SHA1}
+            --parameter-overrides ImageTag=${CIRCLE_SHA1} \
+            --capabilities CAPABILITY_IAM
 
 workflows:
   version: 2
