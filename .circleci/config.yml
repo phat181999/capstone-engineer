@@ -85,7 +85,6 @@ jobs:
       stack-name:
         description: Name of the CloudFormation stack
         type: string
-        default: project-final-capstone
     executor: aws-cli/default
     steps:
       - checkout
@@ -97,6 +96,18 @@ jobs:
             --template deployments/deployment.yml \
             --stack capstone-project-final \
             --parameter-overrides ImageTag=${CIRCLE_SHA1}
+
+  valid-container:
+    docker:
+      - image: circleci/python:3.8
+
+    steps:
+      - checkout
+      - run:
+          name: Update Container Definition
+          command: |
+            sed -i 's/"ContainerDefinitions": \[{/"ContainerDefinitions": [{"Name": "my-container",/' config.json
+            cat config.json  # Optional: Verify the updated configuration
 
 workflows:
   version: 2
@@ -116,4 +127,6 @@ workflows:
           dockerfile: ~/project/Dockerfile
           path: ~/project/
           tag: ${CIRCLE_SHA1}
-      - deploy-application
+      - deploy-application:
+        requires:
+          -
