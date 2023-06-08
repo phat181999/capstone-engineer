@@ -76,6 +76,11 @@ jobs:
         default: "us-west-2"
     steps:
       - checkout
+      - run:
+          name: Install kubectl
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y kubectl
       - kubernetes/create-or-update-resource:
           resource-file-path: "deployments/deployment.yml"
           get-rollout-status: true
