@@ -92,13 +92,6 @@ jobs:
           version: 20.10.14
       - aws-cli/setup
       - run:
-          name: Create Cloudformation Template with new Docker image
-          command: |
-            aws cloudformation create-stack \
-            --template-body cloudformation/cloudformation.yml \
-            --stack-name capstone-project-final \
-            --region=us-east-1
-      - run:
           name: Configure AWS ECR credentials
           command: |
             export AWS_ECR_REGISTRY=134412166047.dkr.ecr.us-east-1.amazonaws.com
