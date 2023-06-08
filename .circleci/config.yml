@@ -88,6 +88,8 @@ jobs:
     executor: aws-cli/default
     steps:
       - checkout
+      - setup_remote_docker:
+        version: 20.10.14
       - aws-cli/setup
       # - run:
       #     name: Deploy Cloudformation Template with new Docker image
@@ -96,13 +98,6 @@ jobs:
       #       --template deployments/deployment.yml \
       #       --stack capstone-project-final \
       #       --parameter-overrides ImageTag=${CIRCLE_SHA1} \
-      # - run:
-      #     name: Update cloudfront distribution
-      #     command: |
-      #       aws cloudformation deploy \
-      #         --template-file cloudformation/cloudformation.yml \
-      #         --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-      #         --stack-name capstone-project-final
       - run:
           name: Build and Push Docker Image
           command: |
