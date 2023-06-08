@@ -15,7 +15,7 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !GetAtt MyS3Bucket.DomainName
+          - DomainName: !GetAtt finalproject.DomainName
             Id: MyS3BucketOrigin
             S3OriginConfig:
               OriginAccessIdentity: ""
