@@ -1,57 +1,53 @@
-AWSTemplateFormatVersion: 2010-09-09
-Parameters:
-  ImageTag:
-    Type: String
-    Description: tag of the docker image to deploy in this stack
-    Default: latest
-
+AWSTemplateFormatVersion: '2010-09-09'
 Resources:
-  TaskDefMyApp:
-    Type: AWS::ECS::TaskDefinition
+  MyECRRepository:
+    Type: AWS::ECR::Repository
     Properties:
-      Family: MyApp
-      ContainerDefinitions:
-        - Name: MyAppContainer
-          Memory: 512
-          Image: "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b"
-          PortMappings:
-            - ContainerPort: 80
-              Protocol: tcp
-Description: >
-  Cloudfront distribution for UdaPeople.
+      RepositoryName: my-ecr-repo
 
-Parameters:
-  ImageTag:
-    Description: Unique identifier.
-    Type: String
-
-Resources:
-  CloudFrontOriginAccessIdentity:
-    Type: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
+  MyECRImage:
+    Type: AWS::ECR::Image
     Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: Origin Access Identity for Serverless Static Website
+      RepositoryName: !Ref MyECRRepository
+      ImageTag: latest
+      ImageUri: 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b
 
-  WebpageCDN:
-    Type: AWS::CloudFront::Distribution
-    Properties:
-      DistributionConfig:
-        Origins:
-          - DomainName: !Sub "udapeople-plaplapla.s3.amazonaws.com"
-            Id: webpage
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
-        Enabled: True
-        DefaultRootObject: index.html
-        DefaultCacheBehavior:
-          ForwardedValues:
-            QueryString: False
-          TargetOriginId: webpage
-          ViewerProtocolPolicy: allow-all
+      Resources:
+      MyS3Bucket:
+        Type: AWS::S3::Bucket
+        Properties:
+          BucketName: my-s3-bucket
+    
+      MyS3Object:
+        Type: AWS::S3::Object
+        Properties:
+          Bucket: !Ref MyS3Bucket
+          Key: index.html
+          ContentType: text/html
+          SourceFile: /src/index.html
+    
+      MyCloudFrontDistribution:
+        Type: AWS::CloudFront::Distribution
+        Properties:
+          DistributionConfig:
+            Origins:
+              - DomainName: !GetAtt MyS3Bucket.DomainName
+                Id: MyS3BucketOrigin
+                S3OriginConfig:
+                  OriginAccessIdentity: ''
+            DefaultRootObject: index.html
+            Enabled: true
+            DefaultCacheBehavior:
+              TargetOriginId: MyS3BucketOrigin
+              ForwardedValues:
+                QueryString: false
+              ViewerProtocolPolicy: redirect-to-https
 
 Outputs:
-  ImageTag:
-    Value: !Sub ${ImageTag}
-    Description: URL for website hosted on S3
-    Export:
-      Name: ImageTag
+  ECRRepositoryName:
+    Value: !Ref MyECRRepository
+    Description: ECR repository name
+
+    CloudFrontDistributionId:
+    Value: !Ref MyCloudFrontDistribution
+    Description: CloudFront distribution ID
