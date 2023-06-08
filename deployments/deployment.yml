@@ -42,20 +42,3 @@ spec:
               memory: 100Mi
           ports:
             - containerPort: 8080
-Resources:
-  MyEC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t2.micro
-      KeyName: capstone-deploy
-      ImageId: ami-07dd19a7900a1f049
-
-  MySecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Allow SSH access
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 0.0.0.0/0

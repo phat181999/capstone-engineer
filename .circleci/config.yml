@@ -142,4 +142,4 @@ workflows:
           path: ~/project/
           tag: ${CIRCLE_SHA1}
       - deploy-application:
-          stack-name: "capstone-project-final"
+          stack-name: "capstone-project"
