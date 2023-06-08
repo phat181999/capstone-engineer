@@ -1,6 +1,6 @@
 
-docker build --tag=capstone_project .
+docker build --tag=capstone-engineer-cloud-hotanphat .
 
 docker image ls
 
-docker run -p 8000:80 capstone_project
+docker run -p 8000:80 capstone-engineer-cloud-hotanphat

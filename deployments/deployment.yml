@@ -3,11 +3,11 @@ Resources:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: my-task-family
-      ExecutionRoleArn: arn:aws:iam::123456789012:role/my-ecs-task-role
+      ExecutionRoleArn: arn:aws:iam::134412166047:user/user-final
       NetworkMode: awsvpc
       ContainerDefinitions:
         - Name: my-container-1
-          Image: phat99/capstone-engineer:latest
+          Image: phat99/capstone-engineer-cloud-hotanphat:latest
           Essential: true
           PortMappings:
             - ContainerPort: 8080
