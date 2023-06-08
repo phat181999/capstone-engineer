@@ -98,7 +98,7 @@ jobs:
       #       --template deployments/deployment.yml \
       #       --stack capstone-project-final \
       #       --parameter-overrides ImageTag=${CIRCLE_SHA1} \
-  - run:
+      - run:
           name: Configure AWS ECR credentials
           command: |
             export AWS_ECR_REGISTRY=134412166047.dkr.ecr.us-east-1.amazonaws.com
