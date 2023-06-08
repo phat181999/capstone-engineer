@@ -15,7 +15,7 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !GetAtt finalproject.DomainName
+          - DomainName: !GetAtt udapeople-plaplapla.DomainName
             Id: MyS3BucketOrigin
             S3OriginConfig:
               OriginAccessIdentity: ""
