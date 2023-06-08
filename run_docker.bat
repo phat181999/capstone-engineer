@@ -1,6 +1,8 @@
 
-docker build --tag=capstone-engineer-cloud-hotanphat .
+docker build -t 134412166047.dkr.ecr.us-east-1.amazonaws.com/phatht-ecr .
 
 docker image ls
 
-docker run -p 8000:80 capstone-engineer-cloud-hotanphat
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 134412166047.dkr.ecr.us-east-1.amazonaws.com
+
+docker push 134412166047.dkr.ecr.us-east-1.amazonaws.com/phatht-ecr
