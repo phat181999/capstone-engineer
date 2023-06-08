@@ -8,7 +8,7 @@ Resources:
   MyS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: udapeople-plaplapla
+      BucketName: my-s3-bucket
 
   MyCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
