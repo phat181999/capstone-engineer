@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Resources:
   MyECRRepository:
     Type: AWS::ECR::Repository
@@ -12,42 +12,41 @@ Resources:
       ImageTag: latest
       ImageUri: 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b
 
-      Resources:
-      MyS3Bucket:
-        Type: AWS::S3::Bucket
-        Properties:
-          BucketName: my-s3-bucket
-    
-      MyS3Object:
-        Type: AWS::S3::Object
-        Properties:
-          Bucket: !Ref MyS3Bucket
-          Key: index.html
-          ContentType: text/html
-          SourceFile: /src/index.html
-    
-      MyCloudFrontDistribution:
-        Type: AWS::CloudFront::Distribution
-        Properties:
-          DistributionConfig:
-            Origins:
-              - DomainName: !GetAtt MyS3Bucket.DomainName
-                Id: MyS3BucketOrigin
-                S3OriginConfig:
-                  OriginAccessIdentity: ''
-            DefaultRootObject: index.html
-            Enabled: true
-            DefaultCacheBehavior:
-              TargetOriginId: MyS3BucketOrigin
-              ForwardedValues:
-                QueryString: false
-              ViewerProtocolPolicy: redirect-to-https
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-s3-bucket
+
+  MyS3Object:
+    Type: AWS::S3::Object
+    Properties:
+      Bucket: !Ref MyS3Bucket
+      Key: index.html
+      ContentType: text/html
+      SourceFile: /src/index.html
+
+  MyCloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt MyS3Bucket.DomainName
+            Id: MyS3BucketOrigin
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+        DefaultRootObject: index.html
+        Enabled: true
+        DefaultCacheBehavior:
+          TargetOriginId: MyS3BucketOrigin
+          ForwardedValues:
+            QueryString: false
+          ViewerProtocolPolicy: redirect-to-https
 
 Outputs:
   ECRRepositoryName:
     Value: !Ref MyECRRepository
     Description: ECR repository name
 
-    CloudFrontDistributionId:
+  CloudFrontDistributionId:
     Value: !Ref MyCloudFrontDistribution
     Description: CloudFront distribution ID
