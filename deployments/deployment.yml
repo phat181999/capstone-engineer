@@ -5,17 +5,17 @@ Resources:
     Properties:
       RepositoryName: my-ecr-repo
 
-  udapeople-plaplapla: # Ensure this matches the logical ID of the existing S3 bucket resource
+  MyS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: udapeople-plaplapla
+      BucketName: udapeopleplaplapla
 
   MyCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !GetAtt udapeople-plaplapla.DomainName # Update the logical ID here
+          - DomainName: !GetAtt MyS3Bucket.DomainName
             Id: MyS3BucketOrigin
             S3OriginConfig:
               OriginAccessIdentity: ""
