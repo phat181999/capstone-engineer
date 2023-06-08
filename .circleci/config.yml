@@ -1,176 +1,145 @@
-# version: 2.1
+version: 2.1
 
 orbs:
   aws-eks: circleci/aws-eks@0.2.3
   aws-ecr: circleci/aws-ecr@3.1.0
   aws-cli: circleci/aws-cli@1.4.0
-# commands:
-#   install_awscli:
-#     description: Install AWS CLI v2
-#     steps:
-#       - run:
-#           name: Install AWS CLI v2
-#           command: |
-#             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-#             unzip awscliv2.zip
-#             sudo ./aws/install
+commands:
+  install_awscli:
+    description: Install AWS CLI v2
+    steps:
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
 
-# jobs:
-#   run-lint:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - checkout
-#       - run:
-#           name: Install hadolint
-#           command: |
-#             sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
-#             sudo chmod +x /bin/hadolint
-#       - run:
-#           name: Run Lint
-#           command: |
-#             hadolint Dockerfile
-
-# build-docker-image:
-#   docker:
-#     - image: circleci/node:13.8.0
-#   steps:
-#     - checkout
-#     - setup_remote_docker:
-#         version: 20.10.14
-#     - run:
-#         name: Build Docker Image
-#         command: |
-#           export TAG=v${CIRCLE_BUILD_NUM}
-#           export IMAGE_NAME=capstone-engineer-cloud-hotanphat
-#           docker build -t phat99/$IMAGE_NAME:$TAG .
-
-# push-docker-image:
-#   docker:
-#     - image: circleci/node:13.8.0
-#   steps:
-#     - checkout
-#     - setup_remote_docker:
-#         version: 20.10.14
-#     - run:
-#         name: Push Docker Image to Docker Hub
-#         command: |
-#           export TAG=v${CIRCLE_BUILD_NUM}
-#           export IMAGE_NAME=capstone-engineer-cloud-hotanphat
-
-#           docker build -t phat99/$IMAGE_NAME:$TAG .
-#           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-#           docker push phat99/$IMAGE_NAME:$TAG
-
-# authen-aws-iam:
-#   docker:
-#     - image: circleci/python:3.9
-
-#   steps:
-#     - checkout
-#     - run:
-#         name: Install AWS IAM Authenticator
-#         command: |
-#           if which aws-iam-authenticator > /dev/null; then
-#             echo "AWS IAM Authenticator for Kubernetes is already installed"
-#             exit 0
-#           fi
-
-#           curl -o aws-iam-authenticator https://amazon-eks.s3.us-east-1.amazonaws.com/1.20.7/2021-04-12/bin/linux/amd64/aws-iam-authenticator
-#           chmod +x aws-iam-authenticator
-#           sudo mv aws-iam-authenticator /usr/local/bin/
-
-# deploy-application:
-#   parameters:
-#     stack-name:
-#       description: Name of the CloudFormation stack
-#       type: string
-#   executor: aws-cli/default
-#   steps:
-#     - checkout
-#     - setup_remote_docker:
-#         version: 20.10.14
-#     - aws-cli/setup
-# - run:
-#     name: Deploy Cloudformation Template with new Docker image
-#     command: |
-#       aws cloudformation deploy \
-#       --template deployments/deployment.yml \
-#       --stack capstone-project-final \
-#       --parameter-overrides ImageTag=${CIRCLE_SHA1} \
-# - run:
-#     name: Configure AWS ECR credentials
-#     command: |
-#       export AWS_ECR_REGISTRY=134412166047.dkr.ecr.us-east-1.amazonaws.com
-#       export AWS_ECR_REPOSITORY=eks_orb_capstone_project
-#       export TAG="v1.${CIRCLE_BUILD_NUM}"
-
-#       aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
-#       aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
-#       aws configure set default.region ${AWS_DEFAULT_REGION}
-
-#       aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin 134412166047.dkr.ecr.us-east-1.amazonaws.com
-# - run:
-#     name: Build and Push Docker Image
-#     command: |
-#       export TAG="v1.${CIRCLE_BUILD_NUM}"
-#       docker build -t 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:$TAG .
-#       docker push 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:$TAG
-
-# # Deploy CloudFormation stack
-# - run:
-#     name: Deploy CloudFormation Stack
-#     command: |
-#       aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack-name capstone-project --template-file deployments/deployment.yml --capabilities CAPABILITY_IAM
-
-version: 2.1
 jobs:
-  build:
+  run-lint:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Install hadolint
+          command: |
+            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
+            sudo chmod +x /bin/hadolint
+      - run:
+          name: Run Lint
+          command: |
+            hadolint Dockerfile
+
+  build-docker-image:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Build Docker Image
+          command: |
+            export TAG=v${CIRCLE_BUILD_NUM}
+            export IMAGE_NAME=capstone-engineer-cloud-hotanphat
+            docker build -t phat99/$IMAGE_NAME:$TAG .
+
+  push-docker-image:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+      - run:
+          name: Push Docker Image to Docker Hub
+          command: |
+            export TAG=v${CIRCLE_BUILD_NUM}
+            export IMAGE_NAME=capstone-engineer-cloud-hotanphat
+
+            docker build -t phat99/$IMAGE_NAME:$TAG .
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD 
+            docker push phat99/$IMAGE_NAME:$TAG
+
+  authen-aws-iam:
     docker:
       - image: circleci/python:3.9
 
     steps:
       - checkout
+      - run:
+          name: Install AWS IAM Authenticator
+          command: |
+            if which aws-iam-authenticator > /dev/null; then
+              echo "AWS IAM Authenticator for Kubernetes is already installed"
+              exit 0
+            fi
+
+            curl -o aws-iam-authenticator https://amazon-eks.s3.us-east-1.amazonaws.com/1.20.7/2021-04-12/bin/linux/amd64/aws-iam-authenticator
+            chmod +x aws-iam-authenticator
+            sudo mv aws-iam-authenticator /usr/local/bin/
+
+  deploy-application:
+    parameters:
+      stack-name:
+        description: Name of the CloudFormation stack
+        type: string
+    executor: aws-cli/default
+    steps:
+      - checkout
       - setup_remote_docker:
           version: 20.10.14
       - aws-cli/setup
+      # - run:
+      #     name: Deploy Cloudformation Template with new Docker image
+      #     command: |
+      #       aws cloudformation deploy \
+      #       --template deployments/deployment.yml \
+      #       --stack capstone-project-final \
+      #       --parameter-overrides ImageTag=${CIRCLE_SHA1} \
       - run:
-          name: Build Docker Image
-          command: docker build -t 134412166047.dkr.ecr.us-east-1.amazonaws.com/phatht-ecr .
-
-      - run:
-          name: Push Docker Image to ECR
+          name: Configure AWS ECR credentials
           command: |
-            echo "$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY" | aws configure --profile circleci
-            $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
-            docker push 134412166047.dkr.ecr.us-east-1.amazonaws.com/phatht-ecr
+            export AWS_ECR_REGISTRY=134412166047.dkr.ecr.us-east-1.amazonaws.com
+            export AWS_ECR_REPOSITORY=eks_orb_capstone_project
+            export TAG="v1.${CIRCLE_BUILD_NUM}"
 
+            aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
+            aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
+            aws configure set default.region ${AWS_DEFAULT_REGION}
+
+            aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin 134412166047.dkr.ecr.us-east-1.amazonaws.com
       - run:
-          name: Deploy Stack
+          name: Build and Push Docker Image
           command: |
-            aws cloudformation deploy \
-              --stack-name my-stack \
-              --template-file cloudformation/cloudformation.yml \
-              --region ${AWS_DEFAULT_REGION}
+            export TAG="v1.${CIRCLE_BUILD_NUM}"
+            docker build -t 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:$TAG .
+            docker push 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:$TAG
+
+      # Deploy CloudFormation stack
+      - run:
+          name: Deploy CloudFormation Stack
+          command: |
+            aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack-name capstone-project --template-file deployments/deployment.yml --capabilities CAPABILITY_IAM
 
 workflows:
   version: 2
   build-and-deploy:
     jobs:
-      # - run-lint
-      # - build-docker-image
-      # - push-docker-image:
-      #     requires:
-      #       - "build-docker-image"
-      # - authen-aws-iam
-      # - aws-ecr/build_and_push_image:
-      #     name: build-and-push-image-ecr
-      #     account-url: AWS_ECR_URL
-      #     region: AWS_DEFAULT_REGION
-      #     repo: eks_orb_capstone_project
-      #     dockerfile: ~/project/Dockerfile
-      #     path: ~/project/
-      #     tag: ${CIRCLE_SHA1}
-      # - deploy-application:
-      #     stack-name: "capstone-project-final"
-      - build
+      - run-lint
+      - build-docker-image
+      - push-docker-image:
+          requires:
+            - "build-docker-image"
+      - authen-aws-iam
+      - aws-ecr/build_and_push_image:
+          name: build-and-push-image-ecr
+          account-url: AWS_ECR_URL
+          region: AWS_DEFAULT_REGION
+          repo: eks_orb_capstone_project
+          dockerfile: ~/project/Dockerfile
+          path: ~/project/
+          tag: ${CIRCLE_SHA1}
+      - deploy-application:
+          stack-name: "capstone-project-final"

@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: phat99/capstone-engineer-cloud-hotanphat:latest
+          image: phat99/capstone-engineer:latest
           resources:
             requests:
               cpu: 100m
