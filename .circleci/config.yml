@@ -89,6 +89,8 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup
+      - setup_remote_docker:
+          version: 19.03.13
       - run:
           name: Configure AWS ECR credentials
           command: |
