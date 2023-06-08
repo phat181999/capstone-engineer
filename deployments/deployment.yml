@@ -5,17 +5,12 @@ Resources:
     Properties:
       RepositoryName: my-ecr-repo
 
-  MyS3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: udapeople-plaplapla
-
   MyCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !GetAtt MyS3Bucket.DomainName
+          - DomainName: !GetAtt udapeople-plaplapla.DomainName
             Id: MyS3BucketOrigin
             S3OriginConfig:
               OriginAccessIdentity: ""
