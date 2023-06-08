@@ -1,18 +1,25 @@
-Resources:
-  MyTaskDefinition:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: my-task-family
-      ExecutionRoleArn: arn:aws:iam::134412166047:user/user-final
-      NetworkMode: awsvpc
-      ContainerDefinitions:
-        - Name: my-container-1
-          Image: phat99/capstone-engineer-cloud-hotanphat:latest
-          Essential: true
-          PortMappings:
-            - ContainerPort: 8080
-        - Name: my-container-2
-          Image: other-image:latest
-          Essential: true
-          PortMappings:
-            - ContainerPort: 8081
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capstone
+  labels:
+    app: capstone
+spec:
+  selector:
+    matchLabels:
+      app: capstone
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: capstone
+    spec:
+      containers:
+        - name: app
+          image: phat99/capstone-engineer-cloud-hotanphat:latest
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+          ports:
+            - containerPort: 8080
