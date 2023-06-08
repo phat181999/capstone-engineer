@@ -95,7 +95,7 @@ jobs:
           name: Create Cloudformation Template with new Docker image
           command: |
             aws cloudformation create-stack \
-            --template-body cloudformation/cloudformation.yml.yml \
+            --template-body cloudformation/cloudformation.yml \
             --stack-name capstone-project-final \
             --region=us-east-1
       - run:
