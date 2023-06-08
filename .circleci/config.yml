@@ -133,7 +133,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 20.10.14
-    - aws-cli/setup
+      - aws-cli/setup
       - run:
           name: Build Docker Image
           command: docker build -t 134412166047.dkr.ecr.us-east-1.amazonaws.com/phatht-ecr .
