@@ -1,25 +1,19 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: capstone
-  labels:
-    app: capstone
-spec:
-  selector:
-    matchLabels:
-      app: capstone
-  replicas: 3
-  template:
-    metadata:
-      labels:
-        app: capstone
-    spec:
-      containers:
-        - name: app
-          image: phat99/capstone_project:latest
-          resources:
-            requests:
-              cpu: 100m
-              memory: 100Mi
-          ports:
-            - containerPort: 8080
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  ImageTag:
+    Type: String
+    Description: tag of the docker image to deploy in this stack
+    Default: latest
+
+Resources:
+  TaskDefMyApp:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: MyApp
+      ContainerDefinitions:
+        - Name: MyAppContainer
+          Memory: 512
+          Image: "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b"
+          PortMappings:
+            - ContainerPort: 80
+              Protocol: tcp
