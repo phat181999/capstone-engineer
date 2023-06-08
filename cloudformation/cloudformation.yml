@@ -5,25 +5,10 @@ Resources:
     Properties:
       RepositoryName: my-ecr-repo
 
-  MyECRImage:
-    Type: AWS::ECR::Image
-    Properties:
-      RepositoryName: !Ref MyECRRepository
-      ImageTag: latest
-      ImageUri: 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b
-
   MyS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: udapeople-plaplapla
-
-  MyS3Object:
-    Type: AWS::S3::Object
-    Properties:
-      Bucket: !Ref MyS3Bucket
-      Key: index.html
-      ContentType: text/html
-      SourceFile: /src/index.html
 
   MyCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
