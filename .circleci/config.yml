@@ -91,6 +91,13 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
       - aws-cli/setup
+      # - run:
+      #     name: Deploy Cloudformation Template with new Docker image
+      #     command: |
+      #       aws cloudformation deploy \
+      #       --template deployments/deployment.yml \
+      #       --stack capstone-project-final \
+      #       --parameter-overrides ImageTag=${CIRCLE_SHA1} \
       - run:
           name: Configure AWS ECR credentials
           command: |
@@ -114,7 +121,7 @@ jobs:
       - run:
           name: Deploy CloudFormation Stack
           command: |
-            aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack capstone-project --template deployments/deployment.yml
+            aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack capstone-project --template deployments/deployment.yml --capabilities CAPABILITY_IAM
 
 workflows:
   version: 2
