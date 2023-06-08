@@ -1,37 +1,19 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Resources:
-  MyS3Bucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: my-bucket-name
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  ImageTag:
+    Type: String
+    Description: tag of the docker image to deploy in this stack
+    Default: latest
 
-  MyKubernetesDeployment:
-    Type: AWS::EKS::Nodegroup
+Resources:
+  TaskDefMyApp:
+    Type: AWS::ECS::TaskDefinition
     Properties:
-      ClusterName: your-cluster-name
-      NodegroupName: my-deployment
-      ScalingConfig:
-        DesiredSize: 3
-        MaxSize: 3
-        MinSize: 3
-      Labels:
-        app: capstone
-      NodeRole: arn:aws:iam::123456789012:role/eks-nodegroup-role
-      Subnets:
-        - subnet-12345678
-        - subnet-23456789
-      LaunchTemplate:
-        Name: my-launch-template
-        Version: my-launch-template-version
-      Overrides:
-        - ContainerOverrides:
-            - Name: app
-              Image: phat99/capstone-engineer-cloud-hotanphat:latest
-              Command:
-                - /bin/bash
-              ResourceRequirements:
-                - Value:
-                    cpu: "100m"
-                    memory: "100Mi"
-              PortMappings:
-                - ContainerPort: 8080
+      Family: MyApp
+      ContainerDefinitions:
+        - Name: MyAppContainer
+          Memory: 512
+          Image: "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:a9f563330c2535bf000e87b1ae1e448f48a3771b"
+          PortMappings:
+            - ContainerPort: 80
+              Protocol: tcp
