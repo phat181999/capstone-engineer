@@ -1,8 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
+
 Parameters:
   ImageTag:
     Type: String
-    Description: tag of the docker image to deploy in this stack
+    Description: Tag of the Docker image to deploy in this stack
     Default: latest
 
 Resources:
@@ -13,7 +14,29 @@ Resources:
       ContainerDefinitions:
         - Name: MyAppContainer
           Memory: 512
-          Image: "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:${ImageTag}"
+          Image: !Sub "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:${ImageTag}"
           PortMappings:
             - ContainerPort: 80
               Protocol: tcp
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0c94855ba95c71c99 # Specify the desired EC2 instance image ID
+      InstanceType: t2.micro # Specify the desired EC2 instance type
+      KeyName: MyKeyPair # Specify the EC2 key pair to use
+      SecurityGroupIds:
+        - sg-0a5fabd50db5956a7 # Specify the desired security group IDs
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          # Add any desired user data scripts for EC2 instance setup
+
+  DockerImage:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: capstone-engineer-cloud-hotanphat # Specify the desired Docker image repository name
+
+Outputs:
+  EC2InstanceId:
+    Value: !Ref EC2Instance
