@@ -93,7 +93,7 @@ jobs:
           name: Deploy Cloudformation Template with new Docker image
           command: |
             aws cloudformation deploy \
-            --template cloudformation/cloudformation.yml \
+            --template deployments/deployment.yml \
             --stack capstone-project-final \
             --parameter-overrides ImageTag=${CIRCLE_SHA1}
 
