@@ -96,7 +96,13 @@ jobs:
           command: |
             export AWS_ECR_REGISTRY=134412166047.dkr.ecr.us-east-1.amazonaws.com
             export AWS_ECR_REPOSITORY=eks_orb_capstone_project
-            export TAG="v1.${CIRCLE_BUILD_NUM}"
+            export TAG="
+      
+      -run:
+        name: Get Pod
+              command: |
+                kubectl get pods
+                kubectl get services.${CIRCLE_BUILD_NUM}"
 
             aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
             aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
@@ -115,6 +121,12 @@ jobs:
           name: Deploy CloudFormation Stack
           command: |
             aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack capstone-project --template deployments/deployment.yml
+      
+      -run:
+        name: Get Pod
+        command: |
+          kubectl get pods
+          kubectl get services
 
   test-pods-and-services:
     executor: aws-cli/default
