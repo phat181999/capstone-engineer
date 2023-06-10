@@ -134,10 +134,6 @@ jobs:
           correct version has been deployed)
         type: string
     steps:
-      - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
-          install-kubectl: true
-          aws-region: << parameters.aws-region >>
       - run:
           name: Wait for service to be ready
           command: |
@@ -163,3 +159,6 @@ workflows:
           tag: ${CIRCLE_SHA1}
       - deploy-application:
           stack-name: "capstone-project-final"
+      - test-application:
+          requires:
+            - deploy-application
