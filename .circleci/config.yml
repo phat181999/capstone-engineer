@@ -122,7 +122,7 @@ jobs:
             chmod +x ./kubectl
             sudo mv ./kubectl /usr/local/bin/kubectl
             aws eks list-clusters
-            aws eks --region AWS_DEFAULT_REGION update-kubeconfig --name capstone-engineer-cloud-hotanphat
+            aws eks --region us-east-1 update-kubeconfig --name capstone-engineer-cloud-hotanphat
 
   check-cluster:
     executor: aws-eks/python3
