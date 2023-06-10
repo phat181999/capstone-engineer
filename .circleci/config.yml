@@ -160,6 +160,5 @@ workflows:
           tag: ${CIRCLE_SHA1}
       - deploy-application:
           stack-name: "capstone-project-final"
-     - check-cluster:
+      - check-cluster:
           cluster-name: final-project
-          requires: deploy-application
