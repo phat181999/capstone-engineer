@@ -162,3 +162,5 @@ workflows:
           stack-name: "capstone-project-final"
       - check-cluster:
           cluster-name: final-project
+          requires:
+            - deploy-application
