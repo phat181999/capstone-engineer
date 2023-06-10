@@ -1,19 +1,153 @@
+# version: 2.1
+
+# orbs:
+#   aws-eks: circleci/aws-eks@0.2.3
+#   aws-ecr: circleci/aws-ecr@3.1.0
+#   aws-cli: circleci/aws-cli@1.4.0
+# commands:
+#   install_awscli:
+#     description: Install AWS CLI v2
+#     steps:
+#       - run:
+#           name: Install AWS CLI v2
+#           command: |
+#             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+#             unzip awscliv2.zip
+#             sudo ./aws/install
+
+# jobs:
+#   run-lint:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - checkout
+#       - run:
+#           name: Install hadolint
+#           command: |
+#             sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
+#             sudo chmod +x /bin/hadolint
+#       - run:
+#           name: Run Lint
+#           command: |
+#             hadolint Dockerfile
+
+#   build-docker-image:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - checkout
+#       - setup_remote_docker:
+#           version: 19.03.13
+#       - run:
+#           name: Build Docker Image
+#           command: |
+#             export TAG=v${CIRCLE_BUILD_NUM}
+#             export IMAGE_NAME=capstone-engineer-cloud-hotanphat
+#             docker build -t phat99/$IMAGE_NAME:$TAG .
+
+#   push-docker-image:
+#     docker:
+#       - image: circleci/node:13.8.0
+#     steps:
+#       - checkout
+#       - setup_remote_docker:
+#           version: 19.03.13
+#       - run:
+#           name: Push Docker Image to Docker Hub
+#           command: |
+#             export TAG=v${CIRCLE_BUILD_NUM}
+#             export IMAGE_NAME=capstone-engineer-cloud-hotanphat
+
+#             docker build -t phat99/$IMAGE_NAME:$TAG .
+#             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+#             docker push phat99/$IMAGE_NAME:$TAG
+
+#   authen-aws-iam:
+#     docker:
+#       - image: circleci/python:3.9
+
+#     steps:
+#       - checkout
+#       - run:
+#           name: Install AWS IAM Authenticator
+#           command: |
+#             if which aws-iam-authenticator > /dev/null; then
+#               echo "AWS IAM Authenticator for Kubernetes is already installed"
+#               exit 0
+#             fi
+
+#             curl -o aws-iam-authenticator https://amazon-eks.s3.us-east-1.amazonaws.com/1.20.7/2021-04-12/bin/linux/amd64/aws-iam-authenticator
+#             chmod +x aws-iam-authenticator
+#             sudo mv aws-iam-authenticator /usr/local/bin/
+
+#   deploy-application:
+#     parameters:
+#       stack-name:
+#         description: Name of the CloudFormation stack
+#         type: string
+#     executor: aws-cli/default
+#     steps:
+#       - checkout
+#       - aws-cli/setup
+#       - setup_remote_docker:
+#           version: 19.03.13
+#       - run:
+#           name: Configure AWS ECR credentials
+#           command: |
+#             export AWS_ECR_REGISTRY=134412166047.dkr.ecr.us-east-1.amazonaws.com
+#             export AWS_ECR_REPOSITORY=eks_orb_capstone_project
+#             export TAG="v1.${CIRCLE_BUILD_NUM}"
+
+#             aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
+#             aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
+#             aws configure set default.region ${AWS_DEFAULT_REGION}
+
+#             aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin 134412166047.dkr.ecr.us-east-1.amazonaws.com
+#       - run:
+#           name: Build and Push Docker Image
+#           command: |
+#             export TAG="v1.${CIRCLE_BUILD_NUM}"
+#             docker build -t 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:$TAG .
+#             docker push 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:$TAG
+
+#       # Deploy CloudFormation stack
+#       - run:
+#           name: Deploy CloudFormation Stack
+#           command: |
+#             aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack capstone-project --template deployments/deployment.yml
+# workflows:
+#   version: 2
+#   build-and-deploy:
+#     jobs:
+#       - run-lint
+#       - build-docker-image
+#       - push-docker-image:
+#           requires:
+#             - "build-docker-image"
+#       - authen-aws-iam
+#       - aws-ecr/build_and_push_image:
+#           name: build-and-push-image-ecr
+#           account-url: AWS_ECR_URL
+#           region: AWS_DEFAULT_REGION
+#           repo: eks_orb_capstone_project
+#           dockerfile: ~/project/Dockerfile
+#           path: ~/project/
+#           tag: ${CIRCLE_SHA1}
+#       - deploy-application:
+#           stack-name: "capstone-project-final"
 version: 2.1
 
 orbs:
-  aws-eks: circleci/aws-eks@0.2.3
-  aws-ecr: circleci/aws-ecr@3.1.0
-  aws-cli: circleci/aws-cli@1.4.0
-commands:
-  install_awscli:
-    description: Install AWS CLI v2
-    steps:
-      - run:
-          name: Install AWS CLI v2
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
+  aws-eks: circleci/aws-eks@1.0.3
+  kubernetes: circleci/kubernetes@0.11.2
+
+executors:
+  python:
+    docker:
+      - image: circleci/python:3.7.3-stretch
+  aws:
+    docker:
+      - image: amazon/aws-cli
 
 jobs:
   run-lint:
@@ -31,107 +165,84 @@ jobs:
           command: |
             hadolint Dockerfile
 
-  build-docker-image:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - run:
-          name: Build Docker Image
-          command: |
-            export TAG=v${CIRCLE_BUILD_NUM}
-            export IMAGE_NAME=capstone-engineer-cloud-hotanphat
-            docker build -t phat99/$IMAGE_NAME:$TAG .
-
-  push-docker-image:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - run:
-          name: Push Docker Image to Docker Hub
-          command: |
-            export TAG=v${CIRCLE_BUILD_NUM}
-            export IMAGE_NAME=capstone-engineer-cloud-hotanphat
-
-            docker build -t phat99/$IMAGE_NAME:$TAG .
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD 
-            docker push phat99/$IMAGE_NAME:$TAG
-
-  authen-aws-iam:
-    docker:
-      - image: circleci/python:3.9
-
+  build-push-docker-image:
+    machine: true
+    working_directory: ~/app
     steps:
       - checkout
       - run:
-          name: Install AWS IAM Authenticator
+          name: build and push docker image
           command: |
-            if which aws-iam-authenticator > /dev/null; then
-              echo "AWS IAM Authenticator for Kubernetes is already installed"
-              exit 0
-            fi
+            #Login to docker hub
+            docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            # Build image and add a descriptive tag
+            docker build --tag=final-project .
+            # List docker images
+            docker image ls
+            # Push image to a docker repository
+            docker tag final-project phat99/final-project
+            docker push phat99/final-project
 
-            curl -o aws-iam-authenticator https://amazon-eks.s3.us-east-1.amazonaws.com/1.20.7/2021-04-12/bin/linux/amd64/aws-iam-authenticator
-            chmod +x aws-iam-authenticator
-            sudo mv aws-iam-authenticator /usr/local/bin/
-
-  deploy-application:
+  deploy-to-cluster:
+    executor: aws-eks/python3
     parameters:
-      stack-name:
-        description: Name of the CloudFormation stack
+      cluster-name:
+        description: |
+          final-project
         type: string
-    executor: aws-cli/default
     steps:
       - checkout
-      - aws-cli/setup
-      - setup_remote_docker:
-          version: 19.03.13
-      - run:
-          name: Configure AWS ECR credentials
-          command: |
-            export AWS_ECR_REGISTRY=134412166047.dkr.ecr.us-east-1.amazonaws.com
-            export AWS_ECR_REPOSITORY=eks_orb_capstone_project
-            export TAG="v1.${CIRCLE_BUILD_NUM}"
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          # get-rollout-status: true
+          resource-file-path: deployments/deployment.yml
+          resource-name: deployment/final-project
 
-            aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
-            aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
-            aws configure set default.region ${AWS_DEFAULT_REGION}
-
-            aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin 134412166047.dkr.ecr.us-east-1.amazonaws.com
+  check-cluster:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          final-project
+        type: string
+    steps:
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
       - run:
-          name: Build and Push Docker Image
+          name: check cluster
           command: |
-            export TAG="v1.${CIRCLE_BUILD_NUM}"
-            docker build -t 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:$TAG .
-            docker push 134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:$TAG
+            kubectl get nodes
+            kubectl get deployment
 
-      # Deploy CloudFormation stack
-      - run:
-          name: Deploy CloudFormation Stack
-          command: |
-            aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack capstone-project --template deployments/deployment.yml
 workflows:
-  version: 2
-  build-and-deploy:
+  deployment:
     jobs:
       - run-lint
-      - build-docker-image
-      - push-docker-image:
-          requires:
-            - "build-docker-image"
-      - authen-aws-iam
-      - aws-ecr/build_and_push_image:
-          name: build-and-push-image-ecr
-          account-url: AWS_ECR_URL
-          region: AWS_DEFAULT_REGION
-          repo: eks_orb_capstone_project
-          dockerfile: ~/project/Dockerfile
-          path: ~/project/
-          tag: ${CIRCLE_SHA1}
-      - deploy-application:
-          stack-name: "capstone-project-final"
+      - build-push-docker-image:
+          requires: [run-lint]
+      - aws-eks/create-cluster:
+          cluster-name: final-project
+      - deploy-to-cluster:
+          cluster-name: final-project
+          requires: [aws-eks/create-cluster]
+      - aws-eks/update-container-image:
+          cluster-name: final-project
+          container-image-updates: final-project=phat99/final-project
+          post-steps:
+            - kubernetes/delete-resource:
+                resource-names: final-project
+                resource-types: deployment
+                wait: true
+          record: true
+          requires: [deploy-to-cluster]
+          resource-name: deployment/final-project
+      - check-cluster:
+          cluster-name: final-project
+          requires: [aws-eks/update-container-image]
+      - aws-eks/delete-cluster:
+          cluster-name: final-project
+          requires: [check-cluster]

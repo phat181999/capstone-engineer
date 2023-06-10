@@ -1,42 +1,87 @@
-AWSTemplateFormatVersion: 2010-09-09
+# AWSTemplateFormatVersion: 2010-09-09
 
-Parameters:
-  ImageTag:
-    Type: String
-    Description: Tag of the Docker image to deploy in this stack
-    Default: latest
+# Parameters:
+#   ImageTag:
+#     Type: String
+#     Description: Tag of the Docker image to deploy in this stack
+#     Default: latest
 
-Resources:
-  TaskDefMyApp:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: MyApp
-      ContainerDefinitions:
-        - Name: MyAppContainer
-          Memory: 512
-          Image: !Sub "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:v1.908"
-          PortMappings:
-            - ContainerPort: 80
-              Protocol: tcp
+# Resources:
+#   TaskDefMyApp:
+#     Type: AWS::ECS::TaskDefinition
+#     Properties:
+#       Family: MyApp
+#       ContainerDefinitions:
+#         - Name: MyAppContainer
+#           Memory: 512
+#           Image: !Sub "134412166047.dkr.ecr.us-east-1.amazonaws.com/eks_orb_capstone_project:v1.908"
+#           PortMappings:
+#             - ContainerPort: 80
+#               Protocol: tcp
 
-  EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: ami-052fff77b3e2ecbca # Specify the desired EC2 instance image ID
-      InstanceType: t2.micro # Specify the desired EC2 instance type
-      KeyName: newkeypair # Specify the EC2 key pair to use
-      SecurityGroupIds:
-        - sg-0a5fabd50db5956a7 # Specify the desired security group IDs
-      UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          # Add any desired user data scripts for EC2 instance setup
+#   EC2Instance:
+#     Type: AWS::EC2::Instance
+#     Properties:
+#       ImageId: ami-052fff77b3e2ecbca # Specify the desired EC2 instance image ID
+#       InstanceType: t2.micro # Specify the desired EC2 instance type
+#       KeyName: newkeypair # Specify the EC2 key pair to use
+#       SecurityGroupIds:
+#         - sg-0a5fabd50db5956a7 # Specify the desired security group IDs
+#       UserData:
+#         Fn::Base64: |
+#           #!/bin/bash
+#           # Add any desired user data scripts for EC2 instance setup
 
-  DockerImage:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: capstone-engineer-cloud-hotanphat # Specify the desired Docker image repository name
+#   DockerImage:
+#     Type: AWS::ECR::Repository
+#     Properties:
+#       RepositoryName: capstone-engineer-cloud-hotanphat # Specify the desired Docker image repository name
 
-Outputs:
-  EC2InstanceId:
-    Value: !Ref EC2Instance
+# Outputs:
+#   EC2InstanceId:
+#     Value: !Ref EC2Instance
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: final-project
+  labels:
+    app: final-project
+  namespace: default
+spec:
+  replicas: 2
+  progressDeadlineSeconds: 3600
+  selector:
+    matchLabels:
+      app: final-project
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: final-project
+    spec:
+      containers:
+        - image: phat99/final-project
+          imagePullPolicy: Always
+          name: final-project
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: final-project
+  labels:
+    app: final-project
+spec:
+  type: LoadBalancer
+  selector:
+    app: final-project
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
