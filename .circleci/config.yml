@@ -115,6 +115,34 @@ jobs:
           name: Deploy CloudFormation Stack
           command: |
             aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack capstone-project --template deployments/deployment.yml
+
+  test-application:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+      aws-region:
+        description: |
+          AWS region
+        type: string
+        default: ""
+      expected-version-info:
+        description: |
+          Expected app version (this is used for testing that the
+          correct version has been deployed)
+        type: string
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+          aws-region: << parameters.aws-region >>
+      - run:
+          name: Wait for service to be ready
+          command: |
+            kubectl get pods
+            kubectl get services
 workflows:
   version: 2
   build-and-deploy:
@@ -135,3 +163,6 @@ workflows:
           tag: ${CIRCLE_SHA1}
       - deploy-application:
           stack-name: "capstone-project-final"
+      - test-application:
+          requires:
+            - deploy-application
