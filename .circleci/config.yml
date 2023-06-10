@@ -115,29 +115,14 @@ jobs:
           name: Deploy CloudFormation Stack
           command: |
             aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack capstone-project --template deployments/deployment.yml
-      - run:
-          name: Wait for service to be ready
-          command: |
-            kubectl get pods
-            kubectl get services
-  test-pods-and-services:
-    executor: aws-cli/default
-    steps:
-      - checkout
-      - aws-cli/setup
-      - run:
-          name: Test Pods and Services
-          command: |
-            # Replace <YOUR_EKS_CLUSTER_NAME> with the name of your EKS cluster
-            EKS_CLUSTER_NAME=<YOUR_EKS_CLUSTER_NAME>
-            # Replace <YOUR_NAMESPACE> with the namespace where your pods and services are deployed
-            NAMESPACE=<YOUR_NAMESPACE>
-
-            # Test pods
-            kubectl get pods --namespace $NAMESPACE --context $EKS_CLUSTER_NAME
-
-            # Test services
-            kubectl get services --namespace $NAMESPACE --context $EKS_CLUSTER_NAME
+        - run:
+            name: Wait for service to be ready
+            command: |
+              curl --location -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
+              chmod +x ./kubectl
+              sudo mv ./kubectl /usr/local/bin/kubectl
+              kubectl get pods
+              kubectl get services
 
 workflows:
   version: 2
