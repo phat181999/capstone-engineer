@@ -24,7 +24,7 @@ Resources:
     Properties:
       ImageId: ami-052fff77b3e2ecbca # Specify the desired EC2 instance image ID
       InstanceType: t2.micro # Specify the desired EC2 instance type
-      KeyName: capstone-instance-phat # Specify the EC2 key pair to use
+      KeyName: newkeypair # Specify the EC2 key pair to use
       SecurityGroupIds:
         - sg-0a5fabd50db5956a7 # Specify the desired security group IDs
       UserData:
