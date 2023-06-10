@@ -115,14 +115,14 @@ jobs:
           name: Deploy CloudFormation Stack
           command: |
             aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack capstone-project --template deployments/deployment.yml
-        - run:
-            name: Wait for service to be ready
-            command: |
-              curl --location -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
-              chmod +x ./kubectl
-              sudo mv ./kubectl /usr/local/bin/kubectl
-              kubectl get pods
-              kubectl get services
+      - run:
+          name: Wait for service to be ready
+          command: |
+            curl --location -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/kubectl
+            kubectl get pods
+            kubectl get services
 
 workflows:
   version: 2
