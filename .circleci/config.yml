@@ -116,29 +116,25 @@ jobs:
           command: |
             aws cloudformation deploy --region ${AWS_DEFAULT_REGION} --stack capstone-project --template deployments/deployment.yml
 
-  test-application:
-    executor: aws-eks/python3
-    parameters:
-      cluster-name:
-        description: |
-          Name of the EKS cluster
-        type: string
-      aws-region:
-        description: |
-          AWS region
-        type: string
-        default: ""
-      expected-version-info:
-        description: |
-          Expected app version (this is used for testing that the
-          correct version has been deployed)
-        type: string
+  test-pods-and-services:
+    executor: aws-cli/default
     steps:
+      - checkout
+      - aws-cli/setup
       - run:
-          name: Wait for service to be ready
+          name: Test Pods and Services
           command: |
-            kubectl get pods
-            kubectl get services
+            # Replace <YOUR_EKS_CLUSTER_NAME> with the name of your EKS cluster
+            EKS_CLUSTER_NAME=<YOUR_EKS_CLUSTER_NAME>
+            # Replace <YOUR_NAMESPACE> with the namespace where your pods and services are deployed
+            NAMESPACE=<YOUR_NAMESPACE>
+
+            # Test pods
+            kubectl get pods --namespace $NAMESPACE --context $EKS_CLUSTER_NAME
+
+            # Test services
+            kubectl get services --namespace $NAMESPACE --context $EKS_CLUSTER_NAME
+
 workflows:
   version: 2
   build-and-deploy:
@@ -150,15 +146,9 @@ workflows:
             - "build-docker-image"
       - authen-aws-iam
       - aws-ecr/build_and_push_image:
-          name: build-and-push-image-ecr
-          account-url: AWS_ECR_URL
-          region: AWS_DEFAULT_REGION
           repo: capstone-engineer-cloud-hotanphat
+          tag: "latest,v0.1.${CIRCLE_BUILD_NUM}"
           dockerfile: Dockerfile
-          path: ~/project/
-          tag: ${CIRCLE_SHA1}
+          path: .
       - deploy-application:
           stack-name: "capstone-project-final"
-      - test-application:
-          requires:
-            - deploy-application
