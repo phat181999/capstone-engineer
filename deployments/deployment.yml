@@ -1,60 +1,89 @@
-AWSTemplateFormatVersion: 2010-09-09
+# AWSTemplateFormatVersion: 2010-09-09
 
-Parameters:
-  ImageTag:
-    Type: String
-    Description: Tag of the Docker image to deploy in this stack
-    Default: latest
+# Parameters:
+#   ImageTag:
+#     Type: String
+#     Description: Tag of the Docker image to deploy in this stack
+#     Default: latest
 
-Resources:
-  TaskDefMyApp:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: MyApp
-      ContainerDefinitions:
-        - Name: MyAppContainer
-          Memory: 512
-          Image: !Sub "134412166047.dkr.ecr.us-east-1.amazonaws.com/capstone-engineer-cloud-hotanphat:${ImageTag}"
-          PortMappings:
-            - ContainerPort: 80
-              Protocol: tcp
+# Resources:
+#   TaskDefMyApp:
+#     Type: AWS::ECS::TaskDefinition
+#     Properties:
+#       Family: MyApp
+#       ContainerDefinitions:
+#         - Name: MyAppContainer
+#           Memory: 512
+#           Image: !Sub "134412166047.dkr.ecr.us-east-1.amazonaws.com/capstone-engineer-cloud-hotanphat:${ImageTag}"
+#           PortMappings:
+#             - ContainerPort: 80
+#               Protocol: tcp
 
-  EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      ImageId: ami-052fff77b3e2ecbca
-      InstanceType: t2.micro
-      KeyName: newkeypair
-      SecurityGroupIds:
-        - sg-0a5fabd50db5956a7
-      UserData:
-        Fn::Base64: |
-          #!/bin/bash
-          # Add any desired user data scripts for EC2 instance setup
+#   EC2Instance:
+#     Type: AWS::EC2::Instance
+#     Properties:
+#       ImageId: ami-052fff77b3e2ecbca
+#       InstanceType: t2.micro
+#       KeyName: newkeypair
+#       SecurityGroupIds:
+#         - sg-0a5fabd50db5956a7
+#       UserData:
+#         Fn::Base64: |
+#           #!/bin/bash
+#           # Add any desired user data scripts for EC2 instance setup
 
-  DockerImage:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: capstone-engineer-cloud-hotanphat
+#   DockerImage:
+#     Type: AWS::ECR::Repository
+#     Properties:
+#       RepositoryName: capstone-engineer-cloud-hotanphat
 
-Outputs:
-  EC2InstanceId:
-    Value: !Ref EC2Instance
+# Outputs:
+#   EC2InstanceId:
+#     Value: !Ref EC2Instance
 
----
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: capstone-engineer-cloud-hotanphat
+#   labels:
+#     app: capstone-engineer-cloud-hotanphat
+#   namespace: default
+# spec:
+#   replicas: 2
+#   progressDeadlineSeconds: 3600
+#   selector:
+#     matchLabels:
+#       app: capstone-engineer-cloud-hotanphat
+#   strategy:
+#     rollingUpdate:
+#       maxSurge: 25%
+#       maxUnavailable: 25%
+#     type: RollingUpdate
+#   template:
+#     metadata:
+#       labels:
+#         app: uda-cap
+#     spec:
+#       containers:
+#         - image: phat99/capstone-engineer-cloud-hotanphat
+#           imagePullPolicy: Always
+#           name: capstone-engineer-cloud-hotanphat
+#           ports:
+#             - containerPort: 80
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: capstone-engineer-cloud-hotanphat
+  name: uda-cap
   labels:
-    app: capstone-engineer-cloud-hotanphat
+    app: uda-cap
   namespace: default
 spec:
   replicas: 2
   progressDeadlineSeconds: 3600
   selector:
     matchLabels:
-      app: capstone-engineer-cloud-hotanphat
+      app: uda-cap
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -66,8 +95,24 @@ spec:
         app: uda-cap
     spec:
       containers:
-        - image: phat99/capstone-engineer-cloud-hotanphat
+        - image: phat99/uda-cap
           imagePullPolicy: Always
-          name: capstone-engineer-cloud-hotanphat
+          name: uda-cap
           ports:
             - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: uda-cap
+  labels:
+    app: uda-cap
+spec:
+  type: LoadBalancer
+  selector:
+    app: uda-cap
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
