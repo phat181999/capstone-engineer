@@ -252,7 +252,9 @@ jobs:
             docker push phat99/$IMAGE_NAME:$TAG
 
   deploy-application:
-    executor: aws-eks/python3
+    aws-eks/python3:
+      docker:
+        - image: circleci/python:3.9
     parameters:
       cluster-name:
         description: |
@@ -337,11 +339,6 @@ jobs:
           name: Check on pod status
           command: |
             kubectl get pods
-
-executors:
-  aws-eks/python3:
-    docker:
-      - image: circleci/python:3.9
 
 workflows:
   default:
