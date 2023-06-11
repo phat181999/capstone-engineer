@@ -74,45 +74,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uda-cap
+  name: capstone
   labels:
-    app: uda-cap
-  namespace: default
+    app: capstone
 spec:
-  replicas: 2
-  progressDeadlineSeconds: 3600
   selector:
     matchLabels:
-      app: uda-cap
-  strategy:
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
-    type: RollingUpdate
+      app: capstone
+  replicas: 3
   template:
     metadata:
       labels:
-        app: uda-cap
+        app: capstone
     spec:
       containers:
-        - image: phat99/uda-cap
-          imagePullPolicy: Always
-          name: uda-cap
+        - name: app
+          image: phat99/capstone_project:latest
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
           ports:
-            - containerPort: 80
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: uda-cap
-  labels:
-    app: uda-cap
-spec:
-  type: LoadBalancer
-  selector:
-    app: uda-cap
-  ports:
-    - port: 80
-      targetPort: 80
-      protocol: TCP
+            - containerPort: 8080
