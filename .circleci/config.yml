@@ -35,7 +35,7 @@ jobs:
           name: build and push docker image
           command: |
             #Login to docker hub
-            docker login --username $DOCKERHUB_USER --password $DOCKERHUB_PWD
+            docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
             # Build image and add a descriptive tag
             docker build --tag=uda-cap .
             # List docker images
