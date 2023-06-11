@@ -1,10 +1,9 @@
 version: 2.1
 
-# orbs:
-# aws-eks: circleci/aws-eks@0.2.3
-# aws-ecr: circleci/aws-ecr@3.1.0
-# aws-cli: circleci/aws-cli@1.4.0
-
+orbs:
+  aws-eks: circleci/aws-eks@0.2.3
+  aws-ecr: circleci/aws-ecr@3.1.0
+  aws-cli: circleci/aws-cli@1.4.0
 commands:
   install_awscli:
     description: Install AWS CLI v2
@@ -126,7 +125,6 @@ jobs:
             aws eks list-clusters
             # kubectl get nodes
             # kubectl get deployment
-
   test-application:
     executor: aws-eks/python3
     parameters:
@@ -157,7 +155,6 @@ jobs:
           command: |
             kubectl get pods
             kubectl get services
-
   create-eks-cluster:
     executor: aws-eks/python3
     steps:
@@ -166,7 +163,6 @@ jobs:
           cluster-name: my-eks-cluster
           region: us-east-1
           version: "1.21"
-
 workflows:
   version: 2
   build-and-deploy:
@@ -185,6 +181,9 @@ workflows:
           dockerfile: Dockerfile
           path: .
           tag: ${CIRCLE_SHA1}
+      - aws-eks/create-cluster:
+          cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
+          aws-region: $AWS_DEFAULT_REGION
       - deploy-application:
           stack-name: "capstone-project-final"
       - test-application:
