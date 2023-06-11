@@ -152,7 +152,7 @@ jobs:
       - run:
           name: Configure AWS credentials and cluster context
           command: |
-            aws eks --region ${AWS_DEFAULT_REGION} update-kubeconfig --name capstone-project-final
+            aws eks --region ${AWS_DEFAULT_REGION} update-kubeconfig --name final-project
       - run:
           name: Get Nodes
           command: kubectl get nodes
