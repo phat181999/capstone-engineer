@@ -90,10 +90,10 @@ workflows:
       - aws-eks/create-cluster:
           cluster-name: eks-demo-deployment
       - deploy-to-cluster:
-          cluster-name: phatfpt-capstone-final-project
+          cluster-name: eks-demo-deployment
           requires: [aws-eks/create-cluster]
       - aws-eks/update-container-image:
-          cluster-name: phatfpt-capstone-final-project
+          cluster-name: eks-demo-deployment
           container-image-updates: phatfpt-capstone-final-project=phat99/phatfpt-capstone-final-project
           post-steps:
             - kubernetes/delete-resource:
@@ -103,8 +103,8 @@ workflows:
           requires: [deploy-to-cluster]
           resource-name: deployment/phatfpt-capstone-final-project
       - check-cluster:
-          cluster-name: phatfpt-capstone-final-project
+          cluster-name: eks-demo-deployment
           requires: [aws-eks/update-container-image]
       - aws-eks/delete-cluster:
-          cluster-name: phatfpt-capstone-final-project
+          cluster-name: eks-demo-deployment
           requires: [check-cluster]
