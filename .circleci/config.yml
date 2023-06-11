@@ -182,9 +182,9 @@ workflows:
           path: .
           tag: ${CIRCLE_SHA1}
       - aws-eks/create-cluster:
-        cluster-name: my-eks-cluster
-        region: us-east-1
-        version: "1.21"
+          cluster-name: my-eks-cluster
+          region: us-east-1
+          version: "1.21"
       - deploy-application:
           stack-name: "capstone-project-final"
       # - test-application:
