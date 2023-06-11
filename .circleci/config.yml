@@ -338,6 +338,11 @@ jobs:
           command: |
             kubectl get pods
 
+executors:
+  aws-eks/python3:
+    docker:
+      - image: circleci/python:3.9
+
 workflows:
   default:
     jobs:
