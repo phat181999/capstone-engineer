@@ -100,7 +100,6 @@ workflows:
                 resource-names: uda-cap
                 resource-types: deployment
                 wait: true
-          record: true
           requires: [deploy-to-cluster]
           resource-name: deployment/uda-cap
       - check-cluster:
