@@ -127,10 +127,6 @@ jobs:
             # kubectl get deployment
   test-application:
     executor: aws-cli/default
-    parameters:
-      stack-name:
-        description: Name of the CloudFormation stack
-        type: string
     steps:
       - checkout
       - run:
