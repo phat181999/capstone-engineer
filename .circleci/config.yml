@@ -252,9 +252,10 @@ jobs:
             docker push phat99/$IMAGE_NAME:$TAG
 
   deploy-application:
-    aws-eks/python3:
-      docker:
-        - image: circleci/python:3.9
+    executors:
+      aws-eks/python3:
+        docker:
+          - image: circleci/python:3.9
     parameters:
       cluster-name:
         description: |
