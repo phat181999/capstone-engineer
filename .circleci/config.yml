@@ -121,24 +121,37 @@ jobs:
             curl --location -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
             chmod +x ./kubectl
             sudo mv ./kubectl /usr/local/bin/kubectl
-            aws eks list-clusters
             aws eks --region us-east-1 update-kubeconfig --name final-project
-            kubectl get nodes
-            kubectl get deployment
-  check-cluster:
+            aws eks list-clusters
+            # kubectl get nodes
+            # kubectl get deployment
+  test-application:
     executor: aws-eks/python3
     parameters:
       cluster-name:
         description: |
-          final-project
+          Name of the EKS cluster
+        type: string
+      aws-region:
+        description: |
+          AWS region
+        type: string
+        default: ""
+      expected-version-info:
+        description: |
+          Expected app version (this is used for testing that the
+          correct version has been deployed)
         type: string
     steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          install-kubectl: true
+          aws-region: << parameters.aws-region >>
       - run:
-          name: check cluster
+          name: Wait for service to be ready
           command: |
-            curl --location -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
-            chmod +x ./kubectl
-            sudo mv ./kubectl /usr/local/bin/kubectl
+            kubectl get pods
+            kubectl get services
 
 workflows:
   version: 2
@@ -160,7 +173,9 @@ workflows:
           tag: ${CIRCLE_SHA1}
       - deploy-application:
           stack-name: "capstone-project-final"
-      - check-cluster:
+      - test-application:
           cluster-name: final-project
+          aws-region: $AWS_DEFAULT_REGION
+          expected-version-info: "${CIRCLE_SHA1}"
           requires:
             - deploy-application
