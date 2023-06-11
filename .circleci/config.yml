@@ -254,7 +254,6 @@ jobs:
             kubectl get services
 
   check-cluster:
-    executor: aws-eks/python3
     parameters:
       cluster-name:
         description: |
