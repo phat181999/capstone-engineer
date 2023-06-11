@@ -5,6 +5,14 @@ orbs:
   aws-ecr: circleci/aws-ecr@3.1.0
   aws-cli: circleci/aws-cli@1.4.0
   kubernetes: circleci/kubernetes@1.3.1
+
+executors:
+  python:
+    docker:
+      - image: circleci/python:3.7.3-stretch
+  aws:
+    docker:
+      - image: amazon/aws-cli
 commands:
   install_awscli:
     description: Install AWS CLI v2
@@ -252,10 +260,7 @@ jobs:
             docker push phat99/$IMAGE_NAME:$TAG
 
   deploy-application:
-    executors:
-      aws-eks/python3:
-        docker:
-          - image: circleci/python:3.9
+    executor: aws-eks/python3
     parameters:
       cluster-name:
         description: |
