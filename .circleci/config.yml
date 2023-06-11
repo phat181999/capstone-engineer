@@ -60,7 +60,7 @@ jobs:
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           # get-rollout-status: true
-          resource-file-path: cloudformation/cloudformation.yml
+          resource-file-path: deployments/deployment.yml
           resource-name: deployment/uda-cap
 
   check-cluster:
