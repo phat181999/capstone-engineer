@@ -88,7 +88,7 @@ workflows:
       - build-push-docker-image:
           requires: [run-lint]
       - aws-eks/create-cluster:
-          cluster-name: uda-cap
+          cluster-name: eks-demo-deployment
       - deploy-to-cluster:
           cluster-name: uda-cap
           requires: [aws-eks/create-cluster]
