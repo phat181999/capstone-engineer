@@ -143,6 +143,9 @@ jobs:
           correct version has been deployed)
         type: string
     steps:
+      - run:
+          name: run kubectl
+          command: curl --location -o kubectl https://storage.googleapis.com/kubernetes-release/release/v1.21.2/bin/linux/amd64/kubectl
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
