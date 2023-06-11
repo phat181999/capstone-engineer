@@ -84,9 +84,9 @@ orbs:
 workflows:
   deployment:
     jobs:
-      - lint-app
+      - run-lint
       - build-push-docker-image:
-          requires: [lint-app]
+          requires: [run-lint]
       - aws-eks/create-cluster:
           cluster-name: uda-cap
       - deploy-to-cluster:
