@@ -157,6 +157,7 @@ jobs:
           command: |
             kubectl get pods
             kubectl get services
+
   create-eks-cluster:
     executor: aws-eks/python3
     steps:
@@ -165,10 +166,7 @@ jobs:
           cluster-name: my-eks-cluster
           region: us-east-1
           version: "1.21"
-orbs:
-  aws-eks: circleci/aws-eks@1.0.3
-  kubernetes: circleci/kubernetes@0.11.2
-  aws-ecr: circleci/aws-ecr@3.1.0
+
 workflows:
   version: 2
   build-and-deploy:
@@ -187,13 +185,11 @@ workflows:
           dockerfile: Dockerfile
           path: .
           tag: ${CIRCLE_SHA1}
-      - aws-eks/create-cluster:
-          cluster-name: uda-cap
-      # - deploy-application:
-      #     stack-name: "capstone-project-final"
-      # - test-application:
-      #     cluster-name: final-project
-      #     aws-region: $AWS_DEFAULT_REGION
-      #     expected-version-info: "${CIRCLE_SHA1}"
-      #     requires:
-      #       - deploy-application
+      - deploy-application:
+          stack-name: "capstone-project-final"
+      - test-application:
+          cluster-name: final-project
+          aws-region: $AWS_DEFAULT_REGION
+          expected-version-info: "${CIRCLE_SHA1}"
+          requires:
+            - deploy-application
