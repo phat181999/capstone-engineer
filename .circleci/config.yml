@@ -126,43 +126,30 @@ jobs:
             # kubectl get nodes
             # kubectl get deployment
   test-application:
-    executor: aws-eks/python3
+    executor: aws-cli/default
     parameters:
-      cluster-name:
-        description: |
-          Name of the EKS cluster
+      stack-name:
+        description: Name of the CloudFormation stack
         type: string
-      aws-region:
-        description: |
-          AWS region
-        type: string
-        default: ""
-      expected-version-info:
-        description: |
-          Expected app version (this is used for testing that the
-          correct version has been deployed)
-        type: string
-    steps:
-      - run:
-          name: run kubectl
-          command: curl --location -o kubectl https://storage.googleapis.com/kubernetes-release/release/v1.21.2/bin/linux/amd64/kubectl
-      - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
-          install-kubectl: true
-          aws-region: << parameters.aws-region >>
-      - run:
-          name: Wait for service to be ready
-          command: |
-            kubectl get pods
-            kubectl get services
-  create-eks-cluster:
-    executor: aws-eks/python3
     steps:
       - checkout
-      - aws-eks/create-cluster:
-          cluster-name: my-eks-cluster
-          region: us-east-1
-          version: "1.21"
+      - run:
+          name: Install kubectl
+          command: |
+            curl --location -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/kubectl
+      - run:
+          name: Configure AWS credentials and cluster context
+          command: |
+            aws eks --region ${AWS_DEFAULT_REGION} update-kubeconfig --name final-project
+      - run:
+          name: Get Nodes
+          command: kubectl get nodes
+      - run:
+          name: Get Services
+          command: kubectl get services
+
 workflows:
   version: 2
   build-and-deploy:
@@ -184,8 +171,5 @@ workflows:
       - deploy-application:
           stack-name: "capstone-project-final"
       - test-application:
-          cluster-name: final-project
-          aws-region: $AWS_DEFAULT_REGION
-          expected-version-info: "${CIRCLE_SHA1}"
           requires:
             - deploy-application
