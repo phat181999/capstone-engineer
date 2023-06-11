@@ -1,35 +1,45 @@
-Description: >
-  CapStone Project stack.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uda-cap
+  labels:
+    app: uda-cap
+  namespace: default
+spec:
+  replicas: 2
+  progressDeadlineSeconds: 3600
+  selector:
+    matchLabels:
+      app: uda-cap
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: uda-cap
+    spec:
+      containers:
+        - image: walidoc/uda-cap
+          imagePullPolicy: Always
+          name: uda-cap
+          ports:
+            - containerPort: 80
 
-Parameters:
-  ID:
-    Description: Unique identifier.
-    Type: String
-
-Resources:
-  InstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupName: !Sub CapStone-${ID}
-      GroupDescription: Allow port 22 and port 80.
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
-
-  EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t2.micro
-      SecurityGroups:
-        - Ref: InstanceSecurityGroup
-      KeyName: capstone-deploy
-      ImageId: ami-07dd19a7900a1f049
-      Tags:
-        - Key: Name
-          Value: !Sub capstone-${ID}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: uda-cap
+  labels:
+    app: uda-cap
+spec:
+  type: LoadBalancer
+  selector:
+    app: uda-cap
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
