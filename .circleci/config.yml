@@ -198,5 +198,6 @@ workflows:
           tag: ${CIRCLE_SHA1}
       - deploy-application:
           stack-name: "capstone-project-final"
-      - check-cluster:
-          cluster-name: final-project
+      - aws-eks/create-cluster:
+          cluster-name: eks-orb-capstone-project-deployment-${CIRCLE_WORKFLOW_ID:0:7}
+          aws-region: $AWS_DEFAULT_REGION
