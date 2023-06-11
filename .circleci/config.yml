@@ -89,25 +89,25 @@ workflows:
           requires: [run-lint]
       - aws-eks/create-cluster:
           cluster-name: eks-demo-deployment
-      - deploy-to-cluster:
-          cluster-name: uda-cap
-          requires: [aws-eks/create-cluster]
-      - aws-eks/update-container-image:
-          cluster-name: uda-cap
-          container-image-updates: uda-cap=phat99/uda-cap
-          post-steps:
-            - kubernetes/delete-resource:
-                resource-names: uda-cap
-                resource-types: deployment
-                wait: true
-          requires: [deploy-to-cluster]
-          resource-name: deployment/uda-cap
-      - check-cluster:
-          cluster-name: uda-cap
-          requires: [aws-eks/update-container-image]
-      - aws-eks/delete-cluster:
-          cluster-name: uda-cap
-          requires: [check-cluster]
+      # - deploy-to-cluster:
+      #     cluster-name: uda-cap
+      #     requires: [aws-eks/create-cluster]
+      # - aws-eks/update-container-image:
+      #     cluster-name: uda-cap
+      #     container-image-updates: uda-cap=phat99/uda-cap
+      #     post-steps:
+      #       - kubernetes/delete-resource:
+      #           resource-names: uda-cap
+      #           resource-types: deployment
+      #           wait: true
+      #     requires: [deploy-to-cluster]
+      #     resource-name: deployment/uda-cap
+      # - check-cluster:
+      #     cluster-name: uda-cap
+      #     requires: [aws-eks/update-container-image]
+      # - aws-eks/delete-cluster:
+      #     cluster-name: uda-cap
+      #     requires: [check-cluster]
 # ====================================
 # jobs:
 #   run-lint:
