@@ -153,12 +153,25 @@ jobs:
           name: Configure AWS credentials and cluster context
           command: |
             aws eks --region ${AWS_DEFAULT_REGION} update-kubeconfig --name final-project
+            kubectl get nodes
+            kubectl get services
+
+  check-cluster:
+    executor: aws-eks/python3
+    parameters:
+      cluster-name:
+        description: |
+          uda-cap
+        type: string
+    steps:
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
       - run:
-          name: Get Nodes
-          command: kubectl get nodes
-      - run:
-          name: Get Services
-          command: kubectl get services
+          name: check cluster
+          command: |
+            kubectl get nodes
+            kubectl get deployment
 
 workflows:
   version: 2
@@ -180,6 +193,5 @@ workflows:
           tag: ${CIRCLE_SHA1}
       - deploy-application:
           stack-name: "capstone-project-final"
-      - test-application:
-          requires:
-            - deploy-application
+      - check-cluster:
+          cluster-name: final-project
