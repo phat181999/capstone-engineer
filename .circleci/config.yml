@@ -254,6 +254,8 @@ jobs:
             kubectl get services
 
   check-cluster:
+    docker:
+      - image: cimg/python:3.10
     parameters:
       cluster-name:
         description: |
