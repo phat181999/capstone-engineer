@@ -81,10 +81,6 @@ jobs:
             kubectl get nodes
             kubectl get deployment
 
-orbs:
-  aws-eks: circleci/aws-eks@2.2.0
-  kubernetes: circleci/kubernetes@1.3
-
 workflows:
   deployment:
     jobs:
@@ -113,8 +109,6 @@ workflows:
       - aws-eks/delete-cluster:
           cluster-name: uda-cap
           requires: [check-cluster]
-
-
 # ====================================
 # jobs:
 #   run-lint:
