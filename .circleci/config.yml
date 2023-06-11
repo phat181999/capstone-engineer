@@ -181,7 +181,10 @@ workflows:
           dockerfile: Dockerfile
           path: .
           tag: ${CIRCLE_SHA1}
-      - create-eks-cluster
+      - aws-eks/create-cluster:
+        cluster-name: my-eks-cluster
+        region: us-east-1
+        version: "1.21"
       - deploy-application:
           stack-name: "capstone-project-final"
       # - test-application:
