@@ -1,12 +1,9 @@
 version: 2.1
 
 executors:
-  python:
-    docker:
-      - image: circleci/python:3.7.3-stretch
-  aws:
-    docker:
-      - image: amazon/aws-cli
+  aws-eks/linux-machine:
+    machine:
+      image: ubuntu-2004:202106-01
 
 jobs:
   run-lint:
@@ -91,6 +88,7 @@ workflows:
           cluster-name: uda-cap
       - deploy-to-cluster:
           cluster-name: uda-cap
+          executor: aws-eks/linux-machine
           requires: [aws-eks/create-cluster]
       - aws-eks/update-container-image:
           cluster-name: uda-cap
