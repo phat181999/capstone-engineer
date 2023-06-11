@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uda-cap
+  name: phatfpt-capstone-final-project
   labels:
-    app: uda-cap
+    app: phatfpt-capstone-final-project
   namespace: default
 spec:
   replicas: 2
@@ -19,12 +19,12 @@ spec:
   template:
     metadata:
       labels:
-        app: uda-cap
+        app: phatfpt-capstone-final-project
     spec:
       containers:
-        - image: phat99/uda-cap
+        - image: phat99/phatfpt-capstone-final-project
           imagePullPolicy: Always
-          name: uda-cap
+          name: phatfpt-capstone-final-project
           ports:
             - containerPort: 80
 
@@ -32,13 +32,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: uda-cap
+  name: phatfpt-capstone-final-project
   labels:
-    app: uda-cap
+    app: phatfpt-capstone-final-project
 spec:
   type: LoadBalancer
   selector:
-    app: uda-cap
+    app: phatfpt-capstone-final-project
   ports:
     - port: 80
       targetPort: 80
