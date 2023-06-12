@@ -84,27 +84,27 @@ jobs:
 workflows:
   deployment:
     jobs:
-      # - run-lint
-      # - build-push-docker-image:
-      #     requires: [run-lint]
-      # - aws-eks/create-cluster:
-      #     cluster-name: phatfpt-capstone
-      # - deploy-to-cluster:
-      #     cluster-name: phatfpt-capstone
-      #     requires: [aws-eks/create-cluster]
-      # - aws-eks/update-container-image:
-      #     cluster-name: phatfpt-capstone
-      #     container-image-updates: phatfpt-capstone=phat99/phatfpt-capstone
-      #     post-steps:
-      #       - kubernetes/delete-resource:
-      #           resource-names: phatfpt-capstone
-      #           resource-types: deployment
-      #           wait: true
-      #     requires: [deploy-to-cluster]
-      #     resource-name: deployment/phatfpt-capstone
-      # - check-cluster:
-      #     cluster-name: phatfpt-capstone
-      #     requires: [aws-eks/update-container-image]
+      - run-lint
+      - build-push-docker-image:
+          requires: [run-lint]
+      - aws-eks/create-cluster:
+          cluster-name: phatfpt-capstone
+      - deploy-to-cluster:
+          cluster-name: phatfpt-capstone
+          requires: [aws-eks/create-cluster]
+      - aws-eks/update-container-image:
+          cluster-name: phatfpt-capstone
+          container-image-updates: phatfpt-capstone=phat99/phatfpt-capstone
+          post-steps:
+            - kubernetes/delete-resource:
+                resource-names: phatfpt-capstone
+                resource-types: deployment
+                wait: true
+          requires: [deploy-to-cluster]
+          resource-name: deployment/phatfpt-capstone
+      - check-cluster:
+          cluster-name: phatfpt-capstone
+          requires: [aws-eks/update-container-image]
       - aws-eks/delete-cluster:
           cluster-name: phatfpt-capstone
-          # requires: [check-cluster]
+          requires: [check-cluster]
