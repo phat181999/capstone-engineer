@@ -37,12 +37,12 @@ jobs:
             #Login to docker hub
             docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
             # Build image and add a descriptive tag
-            docker build --tag=phatfpt-capstone-final-project .
+            docker build --tag=phatfpt-capstone .
             # List docker images
             docker image ls
             # Push image to a docker repository
-            docker tag phatfpt-capstone-final-project phat99/phatfpt-capstone-final-project
-            docker push phat99/phatfpt-capstone-final-project
+            docker tag phatfpt-capstone phat99/phatfpt-capstone
+            docker push phat99/phatfpt-capstone
 
   deploy-to-cluster:
     docker:
@@ -50,7 +50,7 @@ jobs:
     parameters:
       cluster-name:
         description: |
-          phatfpt-capstone-final-project
+          phatfpt-capstone
         type: string
     steps:
       - checkout
@@ -59,9 +59,8 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
       - kubernetes/create-or-update-resource:
-          # get-rollout-status: true
           resource-file-path: deployments/deployment.yml
-          resource-name: deployment/phatfpt-capstone-final-project
+          resource-name: deployment/phatfpt-capstone
 
   check-cluster:
     docker:
@@ -69,7 +68,7 @@ jobs:
     parameters:
       cluster-name:
         description: |
-          phatfpt-capstone-final-project
+          phatfpt-capstone
         type: string
     steps:
       - kubernetes/install
@@ -88,23 +87,23 @@ workflows:
       - build-push-docker-image:
           requires: [run-lint]
       - aws-eks/create-cluster:
-          cluster-name: eks-demo-deployment
+          cluster-name: phatfpt-capstone
       - deploy-to-cluster:
-          cluster-name: eks-demo-deployment
+          cluster-name: phatfpt-capstone
           requires: [aws-eks/create-cluster]
       - aws-eks/update-container-image:
-          cluster-name: eks-demo-deployment
-          container-image-updates: phatfpt-capstone-final-project=phat99/phatfpt-capstone-final-project
+          cluster-name: phatfpt-capstone
+          container-image-updates: phatfpt-capstone=phat99/phatfpt-capstone
           post-steps:
             - kubernetes/delete-resource:
-                resource-names: phatfpt-capstone-final-project
+                resource-names: phatfpt-capstone
                 resource-types: deployment
                 wait: true
           requires: [deploy-to-cluster]
-          resource-name: deployment/phatfpt-capstone-final-project
+          resource-name: deployment/phatfpt-capstone
       - check-cluster:
-          cluster-name: eks-demo-deployment
+          cluster-name: phatfpt-capstone
           requires: [aws-eks/update-container-image]
       - aws-eks/delete-cluster:
-          cluster-name: eks-demo-deployment
+          cluster-name: phatfpt-capstone
           requires: [check-cluster]

@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: phatfpt-capstone-final-project
+  name: phatfpt-capstone
   labels:
-    app: phatfpt-capstone-final-project
+    app: phatfpt-capstone
   namespace: default
 spec:
   replicas: 2
   progressDeadlineSeconds: 3600
   selector:
     matchLabels:
-      app: uda-cap
+      app: phatfpt-capstone
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -19,12 +19,12 @@ spec:
   template:
     metadata:
       labels:
-        app: phatfpt-capstone-final-project
+        app: phatfpt-capstone
     spec:
       containers:
-        - image: phat99/phatfpt-capstone-final-project
+        - image: phat99/phatfpt-capstone
           imagePullPolicy: Always
-          name: phatfpt-capstone-final-project
+          name: phatfpt-capstone
           ports:
             - containerPort: 80
 
@@ -32,13 +32,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: phatfpt-capstone-final-project
+  name: phatfpt-capstone
   labels:
-    app: phatfpt-capstone-final-project
+    app: phatfpt-capstone
 spec:
   type: LoadBalancer
   selector:
-    app: phatfpt-capstone-final-project
+    app: phatfpt-capstone
   ports:
     - port: 80
       targetPort: 80
