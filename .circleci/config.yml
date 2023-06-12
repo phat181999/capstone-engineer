@@ -24,9 +24,8 @@ jobs:
       - run:
           name: Run Lint
           command: |
-            # hadolint Dockerfile
-            echo "INVALID_COMMAND"  # Introduce failure
-            hadolint Dockerfile || exit 1  # Additional linting command
+            hadolint Dockerfile
+
   build-push-docker-image:
     machine: true
     working_directory: ~/app
