@@ -1,4 +1,4 @@
-FROM nginx:1.18-alpine
+FROM nginx:alpine
 
 RUN rm /usr/share/nginx/html/index.html
 
