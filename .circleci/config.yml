@@ -78,8 +78,8 @@ jobs:
       - run:
           name: check cluster
           command: |
-            kubectl get nodes
-            kubectl get deployment
+            kubectl get pods
+            kubectl get services
 
 workflows:
   deployment:
