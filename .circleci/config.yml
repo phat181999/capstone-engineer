@@ -2,110 +2,161 @@ version: 2.1
 
 orbs:
   aws-eks: circleci/aws-eks@2.2.0
-  aws-ecr: circleci/aws-ecr@3.1.0
-  aws-cli: circleci/aws-cli@1.4.0
-  kubernetes: circleci/kubernetes@1.3.1
-executors:
-  aws-eks/linux-machine:
-    machine:
-      image: ubuntu-2004:202106-01
+  kubernetes: circleci/kubernetes@1.2.0
 
 jobs:
-  run-lint:
+  lint:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.8.0
+    working_directory: ~/repo
     steps:
       - checkout
-      - run:
-          name: Install hadolint
-          command: |
-            sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
-            sudo chmod +x /bin/hadolint
-      - run:
-          name: Run Lint
-          command: |
-            # hadolint Dockerfile
-            echo "INVALID_COMMAND"  # Introduce failure
-            hadolint Dockerfile || exit 1  # Additional linting command
-  build-push-docker-image:
-    machine: true
-    working_directory: ~/app
-    steps:
-      - checkout
-      - run:
-          name: build and push docker image
-          command: |
-            #Login to docker hub
-            docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
-            # Build image and add a descriptive tag
-            docker build --tag=phatfpt-capstone .
-            # List docker images
-            docker image ls
-            # Push image to a docker repository
-            docker tag phatfpt-capstone phat99/phatfpt-capstone
-            docker push phat99/phatfpt-capstone
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            - v1-dependencies-
 
-  deploy-to-cluster:
+      - run:
+          name: Install python dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            make install
+            # Install hadolint
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+                chmod +x /bin/hadolint
+
+      - save_cache:
+          paths:
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+      - run:
+          name: run lint
+          command: |
+            . venv/bin/activate
+            make lint
+  build:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.11.4
     parameters:
       cluster-name:
         description: |
-          phatfpt-capstone
+          Name of the EKS cluster
         type: string
+        default: "CapstoneEKS-bbgxhx6MRN2V"
+      aws-region:
+        description: |
+          AWS region
+        type: string
+        default: "us-east-1"
     steps:
       - checkout
-      - kubernetes/install
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt install -y tar gzip curl
+      - kubernetes/install-kubectl
+      - run:
+          name: Configure variable
+          command: |
+            echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> .env
+            echo AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY >> .env
+            echo DOCKER_PASSWORD=$DOCKER_PASSWORD >> .env
+            echo DOCKER_USERNAME=$DOCKER_USERNAME >> .env
+            cat .env
+      - run:
+          name: Docker login
+          command: |
+            docker login -u "$DOCKER_USERNAME" -p $(echo "$DOCKER_PASSWORD")
+      - run:
+          name: Load Docker image layer cache
+          command: |
+            set +o pipefail
+            docker load -i caches/phatht8-casptone.tar | true
+      - run:
+          name: Build application Docker image
+          command: docker build --cache-from=phatht8-casptone -t phatht8-casptone .
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            chmod -R 777 ../
+            mkdir -p caches
+            docker save -o caches/phatht8-casptone.tar phatht8-casptone
+      - run:
+          name: Push Docker Image
+          command: |
+            docker tag phatht8-casptone phat99/phatht8-casptone
+            docker push phat99/phatht8-casptone
+  deploy:
+    docker:
+      - image: cimg/python:3.11.4
+    parameters:
+      cluster-name:
+        description: |
+          Name of the EKS cluster
+        type: string
+        default: "CapstoneEKS-bbgxhx6MRN2V"
+      aws-region:
+        description: |
+          AWS region
+        type: string
+        default: "us-east-1"
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt install -y tar gzip curl
+      - kubernetes/install-kubectl
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.aws-region >>
           install-kubectl: true
       - kubernetes/create-or-update-resource:
-          resource-file-path: deployment.yml
-          resource-name: deployment/phatfpt-capstone
-
-  check-cluster:
-    docker:
-      - image: cimg/python:3.10
-    parameters:
-      cluster-name:
-        description: |
-          phatfpt-capstone
-        type: string
-    steps:
-      - kubernetes/install
-      - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
+          resource-file-path: ./kubernetes/deployment.yml
+          resource-name: deployment/phatht8-casptone
+          get-rollout-status: true
+          show-kubectl-command: true
+      - kubernetes/create-or-update-resource:
+          resource-file-path: ./kubernetes/aws-authen-cm.yml
+          resource-name: configmap/aws-auth
       - run:
-          name: check cluster
+          name: Test cluster
           command: |
-            kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
-            kubectl get pods
+            kubectl get nodes
+            kubectl get deployment
+            kubectl get pod -o wide
             kubectl get services
+      - run:
+          name: Cleaning up
+          command: docker system prune
 
 workflows:
   deployment:
     jobs:
-      # - run-lint
-      # - build-push-docker-image:
-      #     requires: [run-lint]
-      # - aws-eks/create-cluster:
-      #     cluster-name: phatfpt-capstone
-      # - deploy-to-cluster:
-      #     cluster-name: phatfpt-capstone
-      #     requires: [aws-eks/create-cluster]
-      # - aws-eks/update-container-image:
-      #     cluster-name: phatfpt-capstone
-      #     container-image-updates: phatfpt-capstone=phat99/phatfpt-capstone
-      #     post-steps:
-      #       - kubernetes/delete-resource:
-      #           resource-names: phatfpt-capstone
-      #           resource-types: deployment
-      #           wait: true
-      #     requires: [deploy-to-cluster]
-      #     resource-name: deployment/phatfpt-capstone
-      # - check-cluster:
-      #     cluster-name: phatfpt-capstone
-      #     requires: [aws-eks/update-container-image]
-      - aws-eks/delete-cluster:
-          cluster-name: phatfpt-capstone
-      # requires: [check-cluster]
+      - lint
+      - build:
+          cluster-name: CapstoneEKS-bbgxhx6MRN2V
+          aws-region: $AWS_DEFAULT_REGION
+          filters:
+            branches:
+              only:
+                - main
+          requires:
+            - "lint"
+      - deploy:
+          cluster-name: CapstoneEKS-bbgxhx6MRN2V
+          aws-region: $AWS_DEFAULT_REGION
+          filters:
+            branches:
+              only:
+                - main
+          requires:
+            - "build"
