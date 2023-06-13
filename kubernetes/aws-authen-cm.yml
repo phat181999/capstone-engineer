@@ -2,10 +2,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: aws-auth
-  namespace: kube-system
+  namespace: phatht8-casptone
 data:
   mapRoles: |
-    - rolearn: arn:aws:iam::134412166047:role/eksctl-phatht8-casptone-cluster-ServiceRole-11MF1FT2JELG8
+    - rolearn: arn:aws:eks:us-east-1:134412166047:cluster/phatht8-casptone
       username: system:node:{{EC2PrivateDNSName}}
       groups:
         - system:bootstrappers
