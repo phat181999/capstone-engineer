@@ -143,7 +143,7 @@ workflows:
   build-deploy:
     jobs:
       - lint
-      - build:
+      build:
           cluster-name: phatht8-casptone
           aws-region: $AWS_DEFAULT_REGION
           filters:
@@ -152,7 +152,7 @@ workflows:
                 - master
           requires:
             - "lint"
-      - deploy:
+      deploy:
           cluster-name: phatht8-casptone
           aws-region: $AWS_DEFAULT_REGION
           filters:
