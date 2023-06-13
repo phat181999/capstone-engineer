@@ -23,7 +23,6 @@ spec:
     spec:
       containers:
         - command:
-            - kube-apiserver
             - --authorization-mode=Node,RBAC
             - --advertise-address=10.200.200.100
             - --allow-privileged=true
