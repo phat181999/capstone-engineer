@@ -5,7 +5,7 @@ metadata:
   namespace: phatht8-casptone
 data:
   mapRoles: |
-    - rolearn: arn:aws:eks:us-east-1:134412166047:cluster/phatht8-casptone
+    - rolearn: arn:aws:eks:us-east-1:134412166047:cluster/CapstoneEKS-WuyBwfDFC2H8
       username: system:node:{{EC2PrivateDNSName}}
       groups:
         - system:bootstrappers
