@@ -1,12 +1,14 @@
 version: 2.1
 
+orbs:
+  aws-eks: circleci/aws-eks@2.2.0
+  aws-ecr: circleci/aws-ecr@3.1.0
+  aws-cli: circleci/aws-cli@1.4.0
+  kubernetes: circleci/kubernetes@1.3.1
 executors:
-  python:
-    docker:
-      - image: circleci/python:3.7.3-stretch
-  aws:
-    docker:
-      - image: amazon/aws-cli
+  aws-eks/linux-machine:
+    machine:
+      image: ubuntu-2004:202106-01
 
 jobs:
   lint-app:
@@ -27,7 +29,6 @@ jobs:
           command: |
             . venv/bin/activate
             make lint
-
   build-push-docker-image:
     machine: true
     working_directory: ~/app
@@ -37,22 +38,22 @@ jobs:
           name: build and push docker image
           command: |
             #Login to docker hub
-            docker login --username $DOCKERHUB_USER --password $DOCKERHUB_PWD
+            docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
             # Build image and add a descriptive tag
-            docker build --tag=phatht8-capstone .
+            docker build --tag=phatfpt-capstone .
             # List docker images
             docker image ls
             # Push image to a docker repository
-            docker tag phatht8-capstone phat99/phatht8-capstone
-            docker push phat99/phatht8-capstone
+            docker tag phatfpt-capstone phat99/phatfpt-capstone
+            docker push phat99/phatfpt-capstone
 
   deploy-to-cluster:
     docker:
-      - image: cimg/python:3.11.4
+      - image: cimg/python:3.10
     parameters:
       cluster-name:
         description: |
-          phatht8-capstone
+          phatfpt-capstone
         type: string
     steps:
       - checkout
@@ -61,17 +62,16 @@ jobs:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
       - kubernetes/create-or-update-resource:
-          # get-rollout-status: true
           resource-file-path: deployment.yml
-          resource-name: deployment/phatht8-capstone
+          resource-name: deployment/phatfpt-capstone
 
   check-cluster:
     docker:
-      - image: cimg/python:3.11.4
+      - image: cimg/python:3.10
     parameters:
       cluster-name:
         description: |
-          phatht8-capstone
+          phatfpt-capstone
         type: string
     steps:
       - kubernetes/install
@@ -80,38 +80,33 @@ jobs:
       - run:
           name: check cluster
           command: |
-            kubectl get nodes
-            kubectl get deployment
-
-orbs:
-  aws-eks: circleci/aws-eks@2.2.0
-  kubernetes: circleci/kubernetes@1.2.0
+            kubectl get pods
+            kubectl get services
 
 workflows:
   deployment:
     jobs:
-      - lint-app
+      - run-lint
       - build-push-docker-image:
-          requires: [lint-app]
+          requires: [run-lint]
       - aws-eks/create-cluster:
-          cluster-name: phatht8-capstone
+          cluster-name: phatfpt-capstone
       - deploy-to-cluster:
-          cluster-name: phatht8-capstone
+          cluster-name: phatfpt-capstone
           requires: [aws-eks/create-cluster]
       - aws-eks/update-container-image:
-          cluster-name: phatht8-capstone
-          container-image-updates: phatht8-capstone=phat99/phatht8-capstone
+          cluster-name: phatfpt-capstone
+          container-image-updates: phatfpt-capstone=phat99/phatfpt-capstone
           post-steps:
             - kubernetes/delete-resource:
-                resource-names: phatht8-capstone
+                resource-names: phatfpt-capstone
                 resource-types: deployment
                 wait: true
-          record: true
           requires: [deploy-to-cluster]
-          resource-name: deployment/phatht8-capstone
+          resource-name: deployment/phatfpt-capstone
       - check-cluster:
-          cluster-name: phatht8-capstone
+          cluster-name: phatfpt-capstone
           requires: [aws-eks/update-container-image]
-      - aws-eks/delete-cluster:
-          cluster-name: phatht8-capstone
-          requires: [check-cluster]
+      # - aws-eks/delete-cluster:
+      #     cluster-name: phatfpt-capstone
+      #     requires: [check-cluster]
