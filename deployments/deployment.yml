@@ -20,9 +20,11 @@ spec:
     metadata:
       labels:
         app: phatfpt-capstone
+      name: phatfpt-capstone
     spec:
       containers:
         - command:
+            - phatfpt-capstone
             - --authorization-mode=Node,RBAC
             - --advertise-address=10.200.200.100
             - --allow-privileged=true
