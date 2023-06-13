@@ -106,6 +106,6 @@ workflows:
       # - check-cluster:
       #     cluster-name: phatfpt-capstone
       #     requires: [aws-eks/update-container-image]
-      # - aws-eks/delete-cluster:
-      #     cluster-name: phatfpt-capstone
+      - aws-eks/delete-cluster:
+          cluster-name: phatfpt-capstone
       # requires: [check-cluster]
