@@ -107,4 +107,4 @@ workflows:
       #     requires: [aws-eks/update-container-image]
       - aws-eks/delete-cluster:
           cluster-name: phatht8-casptone
-          requires: [check-cluster]
+          # requires: [check-cluster]
