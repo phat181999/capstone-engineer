@@ -1,119 +1,14 @@
-# version: 2.1
-
-# orbs:
-#   aws-eks: circleci/aws-eks@2.2.0
-#   aws-ecr: circleci/aws-ecr@3.1.0
-#   aws-cli: circleci/aws-cli@1.4.0
-#   kubernetes: circleci/kubernetes@1.3.1
-# executors:
-#   aws-eks/linux-machine:
-#     machine:
-#       image: ubuntu-2004:202106-01
-
-# jobs:
-#   run-lint:
-#     docker:
-#       - image: circleci/node:13.8.0
-#     steps:
-#       - checkout
-#       - run:
-#           name: Install hadolint
-#           command: |
-#             sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
-#             sudo chmod +x /bin/hadolint
-#       - run:
-#           name: Run Lint
-#           command: |
-#             # hadolint Dockerfile
-#             echo "INVALID_COMMAND"  # Introduce failure
-#             hadolint Dockerfile || exit 1  # Additional linting command
-#   build-push-docker-image:
-#     machine: true
-#     working_directory: ~/app
-#     steps:
-#       - checkout
-#       - run:
-#           name: build and push docker image
-#           command: |
-#             #Login to docker hub
-#             docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
-#             # Build image and add a descriptive tag
-#             docker build --tag=phatfpt-capstone .
-#             # List docker images
-#             docker image ls
-#             # Push image to a docker repository
-#             docker tag phatfpt-capstone phat99/phatfpt-capstone
-#             docker push phat99/phatfpt-capstone
-
-#   deploy-to-cluster:
-#     docker:
-#       - image: cimg/python:3.10
-#     parameters:
-#       cluster-name:
-#         description: |
-#           phatfpt-capstone
-#         type: string
-#     steps:
-#       - checkout
-#       - kubernetes/install
-#       - aws-eks/update-kubeconfig-with-authenticator:
-#           cluster-name: << parameters.cluster-name >>
-#           install-kubectl: true
-#       - kubernetes/create-or-update-resource:
-#           resource-file-path: deployments/deployment.yml
-#           resource-name: deployment/phatfpt-capstone
-
-#   check-cluster:
-#     docker:
-#       - image: cimg/python:3.10
-#     parameters:
-#       cluster-name:
-#         description: |
-#           phatfpt-capstone
-#         type: string
-#     steps:
-#       - kubernetes/install
-#       - aws-eks/update-kubeconfig-with-authenticator:
-#           cluster-name: << parameters.cluster-name >>
-#       - run:
-#           name: check cluster
-#           command: |
-#             kubectl get pods
-#             kubectl get services
-
-# workflows:
-#   deployment:
-#     jobs:
-#       - run-lint
-#       - build-push-docker-image:
-#           requires: [run-lint]
-#       - aws-eks/create-cluster:
-#           cluster-name: phatfpt-capstone
-#       - deploy-to-cluster:
-#           cluster-name: phatfpt-capstone
-#           requires: [aws-eks/create-cluster]
-#       - aws-eks/update-container-image:
-#           cluster-name: phatfpt-capstone
-#           container-image-updates: phatfpt-capstone=phat99/phatfpt-capstone
-#           post-steps:
-#             - kubernetes/delete-resource:
-#                 resource-names: phatfpt-capstone
-#                 resource-types: deployment
-#                 wait: true
-#           requires: [deploy-to-cluster]
-#           resource-name: deployment/phatfpt-capstone
-#       - check-cluster:
-#           cluster-name: phatfpt-capstone
-#           requires: [aws-eks/update-container-image]
-#       - aws-eks/delete-cluster:
-#           cluster-name: phatfpt-capstone
-#           requires: [check-cluster]
 version: 2.1
 
 orbs:
-  aws-eks: circleci/aws-eks@0.2.3
+  aws-eks: circleci/aws-eks@2.2.0
   aws-ecr: circleci/aws-ecr@3.1.0
-  kubernetes: circleci/kubernetes@0.4.0
+  aws-cli: circleci/aws-cli@1.4.0
+  kubernetes: circleci/kubernetes@1.3.1
+executors:
+  aws-eks/linux-machine:
+    machine:
+      image: ubuntu-2004:202106-01
 
 jobs:
   run-lint:
@@ -122,177 +17,94 @@ jobs:
     steps:
       - checkout
       - run:
-          name: install dependencies
+          name: Install hadolint
           command: |
             sudo wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64
             sudo chmod +x /bin/hadolint
       - run:
           name: Run Lint
           command: |
-            hadolint Dockerfile
-
-  build-docker-image:
-    docker:
-      - image: circleci/node:13.8.0
+            # hadolint Dockerfile
+            echo "INVALID_COMMAND"  # Introduce failure
+            hadolint Dockerfile || exit 1  # Additional linting command
+  build-push-docker-image:
+    machine: true
+    working_directory: ~/app
     steps:
       - checkout
-
-      - setup_remote_docker:
-          version: 19.03.13
-
       - run:
-          name: Build Docker Image
+          name: build and push docker image
           command: |
-            export TAG=v${CIRCLE_BUILD_NUM}
-            export IMAGE_NAME=phatfpt-capstone
-            docker build -t phat99/$IMAGE_NAME:$TAG .
+            #Login to docker hub
+            docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
+            # Build image and add a descriptive tag
+            docker build --tag=phatfpt-capstone .
+            # List docker images
+            docker image ls
+            # Push image to a docker repository
+            docker tag phatfpt-capstone phat99/phatfpt-capstone
+            docker push phat99/phatfpt-capstone
 
-  push-docker-image:
+  deploy-to-cluster:
     docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-      - run:
-          name: Push Docker Image to Docker Hub
-          command: |
-            export TAG=v${CIRCLE_BUILD_NUM}
-            export IMAGE_NAME=phatfpt-capstone
-
-            docker build -t phat99/$IMAGE_NAME:$TAG .
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD 
-            docker push phat99/$IMAGE_NAME:$TAG
-
-  deploy-application:
-    executor: aws-eks/python3
+      - image: cimg/python:3.10
     parameters:
       cluster-name:
         description: |
-          Name of the EKS cluster
+          phatfpt-capstone
         type: string
-      docker-image-name:
-        description: |
-          Name of the docker image to be deployed
-        type: string
-      version-info:
-        description: |
-          App version information
-        type: string
-      aws-region:
-        description: |
-          AWS region
-        type: string
-        default: "us-west-2"
     steps:
       - checkout
+      - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
           install-kubectl: true
-          aws-region: << parameters.aws-region >>
       - kubernetes/create-or-update-resource:
-          resource-file-path: "deployments/deployment.yml"
-          get-rollout-status: true
+          resource-file-path: deployments/deployment.yml
           resource-name: deployment/phatfpt-capstone
-      - kubernetes/create-or-update-resource:
-          resource-file-path: "deployments/deployment.yml"
 
-  test-application:
-    executor: aws-eks/python3
+  check-cluster:
+    docker:
+      - image: cimg/python:3.10
     parameters:
       cluster-name:
         description: |
-          Name of the EKS cluster
-        type: string
-      aws-region:
-        description: |
-          AWS region
-        type: string
-        default: ""
-      expected-version-info:
-        description: |
-          Expected app version (this is used for testing that the
-          correct version has been deployed)
+          phatfpt-capstone
         type: string
     steps:
+      - kubernetes/install
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: << parameters.cluster-name >>
-          install-kubectl: true
-          aws-region: << parameters.aws-region >>
       - run:
-          name: Wait for service to be ready
+          name: check cluster
           command: |
             kubectl get pods
             kubectl get services
 
-  undeploy-application:
-    executor: aws-eks/python3
-    parameters:
-      cluster-name:
-        description: |
-          Name of the EKS cluster
-        type: string
-      aws-region:
-        description: |
-          AWS region
-        type: string
-        default: ""
-    steps:
-      - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: << parameters.cluster-name >>
-          install-kubectl: true
-          aws-region: << parameters.aws-region >>
-      - kubernetes/delete-resource:
-          resource-types: "deployment,service"
-          label-selector: "app=phatfpt-capstone"
-          wait: true
-      - run:
-          name: Check on pod status
-          command: |
-            kubectl get pods
-
 workflows:
-  default:
+  deployment:
     jobs:
       - run-lint
-      - build-docker-image
-      - push-docker-image:
-          requires:
-            - "build-docker-image"
-      - aws-ecr/build_and_push_image:
-          name: build-and-push-image-ecr
-          account-url: AWS_ECR_URL
-          region: AWS_DEFAULT_REGION
-          repo: phatfpt-capstone
-          dockerfile: Dockerfile
-          path: ~/project/
-          tag: ${CIRCLE_SHA1}
+      - build-push-docker-image:
+          requires: [run-lint]
       - aws-eks/create-cluster:
-          cluster-name: phatfpt-capstone-${CIRCLE_WORKFLOW_ID:0:7}
-          aws-region: $AWS_DEFAULT_REGION
-          requires:
-            - build-and-push-image-ecr
-      - deploy-application:
-          cluster-name: phatfpt-capstone-${CIRCLE_WORKFLOW_ID:0:7}
-          aws-region: $AWS_DEFAULT_REGION
-          docker-image-name: "${AWS_ECR_URL}/phatfpt-capstone:${CIRCLE_SHA1}"
-          version-info: "${CIRCLE_SHA1}"
-          requires:
-            - aws-eks/create-cluster
-      - test-application:
-          cluster-name: phatfpt-capstone-${CIRCLE_WORKFLOW_ID:0:7}
-          aws-region: $AWS_DEFAULT_REGION
-          expected-version-info: "${CIRCLE_SHA1}"
-          requires:
-            - deploy-application
-      - undeploy-application:
-          cluster-name: phatfpt-capstone-${CIRCLE_WORKFLOW_ID:0:7}
-          aws-region: $AWS_DEFAULT_REGION
-          requires:
-            - test-application
+          cluster-name: phatfpt-capstone
+      - deploy-to-cluster:
+          cluster-name: phatfpt-capstone
+          requires: [aws-eks/create-cluster]
+      - aws-eks/update-container-image:
+          cluster-name: phatfpt-capstone
+          container-image-updates: phatfpt-capstone=phat99/phatfpt-capstone
+          post-steps:
+            - kubernetes/delete-resource:
+                resource-names: phatfpt-capstone
+                resource-types: deployment
+                wait: true
+          requires: [deploy-to-cluster]
+          resource-name: deployment/phatfpt-capstone
+      - check-cluster:
+          cluster-name: phatfpt-capstone
+          requires: [aws-eks/update-container-image]
       - aws-eks/delete-cluster:
-          cluster-name: phatfpt-capstone-${CIRCLE_WORKFLOW_ID:0:7}
-          aws-region: $AWS_DEFAULT_REGION
-          wait: true
-          requires:
-            - undeploy-application
+          cluster-name: phatfpt-capstone
+          requires: [check-cluster]
