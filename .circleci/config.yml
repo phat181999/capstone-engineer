@@ -44,7 +44,7 @@ jobs:
         description: |
           Name of the EKS cluster
         type: string
-        default: "CapstoneEKS-bbgxhx6MRN2V"
+        default: "CapstoneEKS-WuyBwfDFC2H8"
       aws-region:
         description: |
           AWS region
@@ -99,7 +99,7 @@ jobs:
         description: |
           Name of the EKS cluster
         type: string
-        default: "CapstoneEKS-bbgxhx6MRN2V"
+        default: "CapstoneEKS-WuyBwfDFC2H8"
       aws-region:
         description: |
           AWS region
@@ -143,7 +143,7 @@ workflows:
     jobs:
       - lint
       - build:
-          cluster-name: CapstoneEKS-bbgxhx6MRN2V
+          cluster-name: CapstoneEKS-WuyBwfDFC2H8
           aws-region: $AWS_DEFAULT_REGION
           filters:
             branches:
@@ -152,7 +152,7 @@ workflows:
           requires:
             - "lint"
       - deploy:
-          cluster-name: CapstoneEKS-bbgxhx6MRN2V
+          cluster-name: CapstoneEKS-WuyBwfDFC2H8
           aws-region: $AWS_DEFAULT_REGION
           filters:
             branches:

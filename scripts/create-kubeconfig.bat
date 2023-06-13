@@ -1,4 +1,1 @@
-aws eks \
---region us-east-1 \
-update-kubeconfig \
---name $1 \
+aws eks --region us-east-1 update-kubeconfig --name %1 
