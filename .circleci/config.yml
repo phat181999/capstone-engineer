@@ -65,13 +65,13 @@ jobs:
           command: |
             echo AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID >> .env
             echo AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY >> .env
-            echo DOCKER_HUB_PASSWORD=$DOCKER_HUB_PASSWORD >> .env
-            echo DOCKER_HUB_USERNAME=$DOCKER_HUB_USERNAME >> .env
+            echo DOCKER_PASSWORD=$DOCKER_PASSWORD >> .env
+            echo DOCKER_USERNAME=$DOCKER_USERNAME >> .env
             cat .env
       - run:
           name: Docker login
           command: |
-            docker login -u "$DOCKER_HUB_USERNAME" -p $(echo "$DOCKER_HUB_PASSWORD")
+            docker login -u "$DOCKER_USERNAME" -p $(echo "$DOCKER_PASSWORD")
       - run:
           name: Load Docker image layer cache
           command: |
