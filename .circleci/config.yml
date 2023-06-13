@@ -84,27 +84,27 @@ jobs:
 workflows:
   deployment:
     jobs:
-      - run-lint
-      - build-push-docker-image:
-          requires: [run-lint]
-      - aws-eks/create-cluster:
-          cluster-name: phatht8-casptone
-      - deploy-to-cluster:
-          cluster-name: phatht8-casptone
-          requires: [aws-eks/create-cluster]
-      - aws-eks/update-container-image:
-          cluster-name: phatht8-casptone
-          container-image-updates: phatht8-casptone=phat99/phatht8-casptone
-          post-steps:
-            - kubernetes/delete-resource:
-                resource-names: phatht8-casptone
-                resource-types: deployment
-                wait: true
-          requires: [deploy-to-cluster]
-          resource-name: deployment/phatht8-casptone
-      - check-cluster:
-          cluster-name: phatht8-casptone
-          requires: [aws-eks/update-container-image]
-      # - aws-eks/delete-cluster:
+      # - run-lint
+      # - build-push-docker-image:
+      #     requires: [run-lint]
+      # - aws-eks/create-cluster:
       #     cluster-name: phatht8-casptone
-      #     requires: [check-cluster]
+      # - deploy-to-cluster:
+      #     cluster-name: phatht8-casptone
+      #     requires: [aws-eks/create-cluster]
+      # - aws-eks/update-container-image:
+      #     cluster-name: phatht8-casptone
+      #     container-image-updates: phatht8-casptone=phat99/phatht8-casptone
+      #     post-steps:
+      #       - kubernetes/delete-resource:
+      #           resource-names: phatht8-casptone
+      #           resource-types: deployment
+      #           wait: true
+      #     requires: [deploy-to-cluster]
+      #     resource-name: deployment/phatht8-casptone
+      # - check-cluster:
+      #     cluster-name: phatht8-casptone
+      #     requires: [aws-eks/update-container-image]
+      - aws-eks/delete-cluster:
+          cluster-name: phatht8-casptone
+          requires: [check-cluster]
