@@ -47,7 +47,8 @@ jobs:
             docker push phat99/phatht8-capstone
 
   deploy-to-cluster:
-    executor: aws-eks/python3
+    docker:
+      - image: cimg/python:3.11.4
     parameters:
       cluster-name:
         description: |
@@ -65,7 +66,8 @@ jobs:
           resource-name: deployment/phatht8-capstone
 
   check-cluster:
-    executor: aws-eks/python3
+    docker:
+      - image: cimg/python:3.11.4
     parameters:
       cluster-name:
         description: |
@@ -82,8 +84,8 @@ jobs:
             kubectl get deployment
 
 orbs:
-  aws-eks: circleci/aws-eks@1.0.3
-  kubernetes: circleci/kubernetes@0.11.2
+  aws-eks: circleci/aws-eks@2.2.0
+  kubernetes: circleci/kubernetes@1.2.0
 
 workflows:
   deployment:
