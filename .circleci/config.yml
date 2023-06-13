@@ -148,7 +148,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
           requires:
             - "lint"
       - deploy:
@@ -157,6 +157,6 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
           requires:
             - "build"
