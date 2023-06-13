@@ -38,12 +38,12 @@ jobs:
             #Login to docker hub
             docker login --username $DOCKER_USERNAME --password $DOCKER_PASSWORD
             # Build image and add a descriptive tag
-            docker build --tag=phatfpt-capstone .
+            docker build --tag=phatht8-casptone .
             # List docker images
             docker image ls
             # Push image to a docker repository
-            docker tag phatfpt-capstone phat99/phatfpt-capstone
-            docker push phat99/phatfpt-capstone
+            docker tag phatht8-casptone phat99/phatht8-casptone
+            docker push phat99/phatht8-casptone
 
   deploy-to-cluster:
     docker:
@@ -51,7 +51,7 @@ jobs:
     parameters:
       cluster-name:
         description: |
-          phatfpt-capstone
+          phatht8-casptone
         type: string
     steps:
       - checkout
@@ -61,7 +61,7 @@ jobs:
           install-kubectl: true
       - kubernetes/create-or-update-resource:
           resource-file-path: deployments/deployment.yml
-          resource-name: deployment/phatfpt-capstone
+          resource-name: deployment/phatht8-casptone
 
   check-cluster:
     docker:
@@ -69,7 +69,7 @@ jobs:
     parameters:
       cluster-name:
         description: |
-          phatfpt-capstone
+          phatht8-casptone
         type: string
     steps:
       - kubernetes/install
@@ -88,23 +88,23 @@ workflows:
       - build-push-docker-image:
           requires: [run-lint]
       - aws-eks/create-cluster:
-          cluster-name: phatfpt-capstone
+          cluster-name: phatht8-casptone
       - deploy-to-cluster:
-          cluster-name: phatfpt-capstone
+          cluster-name: phatht8-casptone
           requires: [aws-eks/create-cluster]
       - aws-eks/update-container-image:
-          cluster-name: phatfpt-capstone
-          container-image-updates: phatfpt-capstone=phat99/phatfpt-capstone
+          cluster-name: phatht8-casptone
+          container-image-updates: phatht8-casptone=phat99/phatht8-casptone
           post-steps:
             - kubernetes/delete-resource:
-                resource-names: phatfpt-capstone
+                resource-names: phatht8-casptone
                 resource-types: deployment
                 wait: true
           requires: [deploy-to-cluster]
-          resource-name: deployment/phatfpt-capstone
+          resource-name: deployment/phatht8-casptone
       - check-cluster:
-          cluster-name: phatfpt-capstone
+          cluster-name: phatht8-casptone
           requires: [aws-eks/update-container-image]
       - aws-eks/delete-cluster:
-          cluster-name: phatfpt-capstone
+          cluster-name: phatht8-casptone
           requires: [check-cluster]
