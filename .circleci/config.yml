@@ -78,6 +78,7 @@ jobs:
       - run:
           name: check cluster
           command: |
+            kubectl proxy
             kubectl get pods
             kubectl get services
 
@@ -89,6 +90,7 @@ workflows:
           requires: [run-lint]
       - aws-eks/create-cluster:
           cluster-name: phatfpt-capstone
+          nodes: 1
       - deploy-to-cluster:
           cluster-name: phatfpt-capstone
           requires: [aws-eks/create-cluster]
