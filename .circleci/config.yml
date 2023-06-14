@@ -160,7 +160,7 @@ workflows:
   deployment:
     jobs:
       - lint
-      - run-cmd
+      - run-cmd:
           cluster-name: CapstoneEKS-WuyBwfDFC2H8
       - build:
           cluster-name: CapstoneEKS-WuyBwfDFC2H8
