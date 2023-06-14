@@ -115,15 +115,15 @@ jobs:
           command: |
             sudo apt install -y tar gzip curl
       - kubernetes/install-kubectl
-      # - aws-eks/update-kubeconfig-with-authenticator:
-      #     cluster-name: << parameters.cluster-name >>
-      #     aws-region: << parameters.aws-region >>
-      #     install-kubectl: true
-      # - kubernetes/create-or-update-resource:
-      #     resource-file-path: ./kubernetes/deployment.yml
-      #     resource-name: deployment/phatht8-casptone
-      #     get-rollout-status: true
-      #     show-kubectl-command: true
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
+          aws-region: << parameters.aws-region >>
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          resource-file-path: ./kubernetes/deployment.yml
+          resource-name: deployment/phatht8-casptone
+          get-rollout-status: true
+          show-kubectl-command: true
       - kubernetes/create-or-update-resource:
           resource-file-path: ./kubernetes/aws-authen-cm.yml
           resource-name: configmap/aws-auth
@@ -161,7 +161,7 @@ jobs:
       - run:
           name: check cluster
           command: |
-            kubectl apply -f aws-authen-cm.yml
+            kubectl apply -f ../aws-authen-cm.yml
 
 workflows:
   deployment:
@@ -178,12 +178,12 @@ workflows:
                 - main
           requires:
             - "lint"
-      - deploy:
-          cluster-name: CapstoneEKS-WuyBwfDFC2H8
-          aws-region: $AWS_DEFAULT_REGION
-          filters:
-            branches:
-              only:
-                - main
-          requires:
-            - "build"
+      # - deploy:
+      #     cluster-name: CapstoneEKS-WuyBwfDFC2H8
+      #     aws-region: $AWS_DEFAULT_REGION
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
+      #     requires:
+      #       - "build"
