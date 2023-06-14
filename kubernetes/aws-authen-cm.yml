@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: phatht8-casptone
+data:
+  mapRoles: |
+    - rolearn: arn:aws:iam::134412166047:role/phatht8-casptone-nodegroup-InstanceRole-QJMEXLB71EQO
+      username: system:node:{{EC2PrivateDNSName}}
+      groups:
+        - system:bootstrappers
+        - system:nodes
