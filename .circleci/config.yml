@@ -141,8 +141,16 @@ jobs:
   run-cmd:
     docker:
       - image: cimg/python:3.10
+    parameters:
+      cluster-name:
+        description: |
+          CapstoneEKS-WuyBwfDFC2H8
+        type: string
     steps:
       - kubernetes/install
+      - kubernetes/install
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: << parameters.cluster-name >>
       - run:
           name: check cluster
           command: |
@@ -153,6 +161,7 @@ workflows:
     jobs:
       - lint
       - run-cmd
+          cluster-name: CapstoneEKS-WuyBwfDFC2H8
       - build:
           cluster-name: CapstoneEKS-WuyBwfDFC2H8
           aws-region: $AWS_DEFAULT_REGION
