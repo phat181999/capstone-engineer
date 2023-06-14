@@ -161,7 +161,7 @@ jobs:
       - run:
           name: check cluster
           command: |
-            kubectl apply -f ./kubernetes/aws-authen-cm.yml
+            kubectl apply -f aws-authen-cm.yml
 
 workflows:
   deployment:
